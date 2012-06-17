@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %}<script type="text/javascript" src="{{ STATIC_URL }}report.js"></script>{% endblock %}
+{% block pagetitle %}What's playing right now near you?{% endblock %}
+{% block bodyClass %}report{% endblock %}
+
+{% block content %}
+<div id="reportWrapper">
+<form id="report" method="post">
+{% csrf_token %}
+<input type="hidden" name="latitude" id="latitude" value="" />
+<input type="hidden" name="longitude" id="longitude" value="" />
+{% if form.errors %}
+<p class="error">Did you miss something? Don't be shy about filling out the highlighted fields.</p>
+{% endif %}
+<h2>Where are you?</h2>
+<input type="hidden" name="place" id="place" value="" />
+<div class="autocomplete-input{% if form.place.errors %} error{% endif %}"><input type="text" name="place_name" id="place-name" /></div>
+<h2>What's playing there?</h2>
+<div class="input{% if form.artist.errors %} error{% endif %}">{{ form.artist.label_tag }}{{ form.artist }}</div>
+<div class="input{% if form.title.errors %} error{% endif %}">{{ form.title.label_tag }}{{ form.title }}</div>
+<div class="submit"><input type="submit" value="That's it!" /></div>
+</form>
+</div>
+{% endblock %}

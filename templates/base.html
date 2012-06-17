@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script type="text/javascript" src="{{ STATIC_URL }}jquery.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}jquery.autocomplete.js"></script>
+<link rel="stylesheet" href="/static/fonts.css">
+<link rel="stylesheet" href="/static/style.css">
+<meta name="viewport" content="width=300">
+{% block head %}<!-- javascript etc -->{% endblock %}
+<title>{% block pagetitle %}{{ pagetitle }}{% endblock %} | plase</title>
+</head>
+<body class="{% block bodyClass %}plase{% endblock %}">
+    <div id="wrapper">
+    <header>
+        <h1><a href="/">plase</a></h1>
+        <!-- some links -->
+    </header>
+    <div id="content">
+    {% block content %}{{ content|safe }}{% endblock %}
+    </div><!-- content -->
+    <div class="push"><!-- bullshit hack to make the footer stick to the bottom --></div>
+    </div><!-- wrapper -->
+    <footer>
+        plase
+    </footer>
+</body>
+</html>

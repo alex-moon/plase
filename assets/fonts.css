@@ -1,0 +1,59 @@
+@font-face {
+    font-family: MuseoSlab;
+    src: url('/static/fonts/Museo_Slab_500-webfont.eot');
+    src: url('/static/fonts/Museo_Slab_500-webfont.woff') format('woff'),
+         url('/static/fonts/Museo_Slab_500-webfont.ttf') format('truetype'),
+         url('/static/fonts/Museo_Slab_500-webfont.svg#webfont') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: Calluna;
+    src: url('/static/fonts/Calluna-Regular-webfont.eot');
+    src: url('/static/fonts/Calluna-Regular-webfont.woff') format('woff'),
+         url('/static/fonts/Calluna-Regular-webfont.ttf') format('truetype'),
+         url('/static/fonts/Calluna-Regular-webfont.svg#webfont') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: CallunaSans;
+    src: url('/static/fonts/CallunaSansRegular-webfont.eot');
+    src: url('/static/fonts/CallunaSansRegular-webfont.woff') format('woff'),
+         url('/static/fonts/CallunaSansRegular-webfont.ttf') format('truetype'),
+         url('/static/fonts/CallunaSansRegular-webfont.svg#webfont') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: Anivers;
+    src: url('/static/fonts/Anivers_Regular-webfont.eot');
+    src: url('/static/fonts/Anivers_Regular-webfont.woff') format('woff'),
+         url('/static/fonts/Anivers_Regular-webfont.ttf') format('truetype'),
+         url('/static/fonts/Anivers_Regular-webfont.svg#webfont') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: MuseoSans;
+    src: url('/static/fonts/MuseoSans_500-webfont.eot');
+    src: url('/static/fonts/MuseoSans_500-webfont.woff') format('woff'),
+         url('/static/fonts/MuseoSans_500-webfont.ttf') format('truetype'),
+         url('/static/fonts/MuseoSans_500-webfont.svg#webfont') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: MuseoSans;
+    src: url('/static/fonts/MuseoSans_500_Italic-webfont.eot');
+    src: url('/static/fonts/MuseoSans_500_Italic-webfont.woff') format('woff'),
+         url('/static/fonts/MuseoSans_500_Italic-webfont.ttf') format('truetype'),
+         url('/static/fonts/MuseoSans_500_Italic-webfont.svg#webfont') format('svg');
+    font-weight: normal;
+    font-style: italic;
+}
