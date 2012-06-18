@@ -6,10 +6,15 @@
 
 {% block content %}
 <div id="reportWrapper">
+<p id="location-warning" class="error">
+This app uses your current location to place what's playing on the globe.
+Please enable geolocation before telling us what's playing.
+</p>
 <form id="report" method="post">
 {% csrf_token %}
-<input type="hidden" name="latitude" id="latitude" value="" />
-<input type="hidden" name="longitude" id="longitude" value="" />
+<!-- input type="hidden" name="latitude" id="latitude" value="" />
+<input type="hidden" name="longitude" id="longitude" value="" /-->
+{{ form.location }}
 {% if form.errors %}
 <p class="error">Did you miss something? Don't be shy about filling out the highlighted fields.</p>
 {% endif %}

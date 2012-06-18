@@ -13,13 +13,9 @@ def watch(request):
     
 def report(request):
     if request.method == "POST":
-        # All that follows is certainly the wrong way to do this but I can't figure out how to 
-        # override the location field/widget properly so for now this is it blagh deal with it
         form = forms.PlayForm(request.POST)
         try:
-            play = form.save(commit=False)
-            play.location = fromstr('POINT(%s %s)' % (request.POST['latitude'], request.POST['longitude']))
-            play.save()
+            form.save()
             return redirect('/')
         except ValueError:
             pass

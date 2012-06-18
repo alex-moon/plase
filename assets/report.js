@@ -11,14 +11,14 @@ var report = {
         });
     },
     setCoords : function(position) {
-        console.log(position.coords.longitude);
         this.latitude = position.coords.latitude;
         this.longitude = position.coords.longitude;
         if (this.latitude && this.longitude) {
-            $('#latitude').val(this.latitude);
-            $('#longitude').val(this.longitude);
+            $('#id_location').val('POINT(' + this.latitude + ' ' + this.longitude + ')');
+            $('#location-warning').remove();
+            $('form#report').show();
         } else {
-            $('form#report').replaceWith('<p class="error">This app uses your current location to place what\'s playing on the globe. Please enable geolocation before telling us what\'s playing.</p>');
+            $('form#report').remove();
         }
     }
 };
