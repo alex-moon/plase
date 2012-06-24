@@ -1,6 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
-from django.contrib.gis.db.models import PointField
+from django.contrib.gis.db.models import PointField, GeoManager
 import re
 
 class Place(models.Model):
@@ -19,6 +19,8 @@ class Play(models.Model):
     location = PointField()
     started = models.DateTimeField(auto_now_add=True)
     nothing = models.BooleanField(default=False)
+    
+    objects = GeoManager()
     
     def __unicode__(self):
         when = self.started.strftime("%H:%M") # @todo better datetime representation

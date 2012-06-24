@@ -11,7 +11,8 @@ import json
 
 def watch(request):
     # plays = Play.objects.filter(nothing=False).order_by('started')
-    plays = Play.objects.annotate(max_started=Max('place__play__started')).filter(started=F('max_started'))
+    here = fromstr('POINT(51.57917330186793 -0.12411163452145502)')
+    plays = Play.objects.annotate(max_started=Max('place__play__started')).filter(started=F('max_started')).distance(here).order_by('distance')
     return render(request, 'watch.html', {'plays' : plays})
     
 def report(request):
