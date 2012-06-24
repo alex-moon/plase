@@ -20,5 +20,11 @@ var report = {
         } else {
             $('form#report').remove();
         }
+    },
+    addPlace : function() {
+        var placeName = $('#place-name').val();
+        $.get('/addPlace/', {'place-name' : placeName}, function(data){
+            $('#place-details').html(data);
+        });
     }
 };

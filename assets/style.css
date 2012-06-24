@@ -94,8 +94,10 @@ ul#watch li .place {
 .place2 { background-image: -webkit-linear-gradient(bottom, #74ab48 0%, #96cc6a 60%, #cef5b3 100%); } /* green */
 .place3 { background-image: -webkit-linear-gradient(bottom, #e8e274 0%, #ede191 60%, #f5f5b6 100%); } /* gold */
 .place4 { background-image: -webkit-linear-gradient(bottom, #cf9fd1 0%, #f1adff 60%, #f7deff 100%); } /* purple */
-.place4 { background-image: -webkit-linear-gradient(bottom, #ffc96b 0%, #ffdf9e 60%, #fff2cc 100%); } /* orange */
+.place5 { background-image: -webkit-linear-gradient(bottom, #ffc96b 0%, #ffdf9e 60%, #fff2cc 100%); } /* orange */
 
+.public { background-image: -webkit-linear-gradient(bottom, #6ad059 0%, #b6efa6 60%, #eef5c3 100%); }
+.private { background-image: -webkit-linear-gradient(bottom, #ff9f2b 0%, #ffdf9e 60%, #fff2cc 100%); }
 
 
 /* REPORT */
@@ -116,13 +118,16 @@ form#report h2 {
 
 form#report label {
     font-family: Anivers;
-    float: left;
     padding: 0.3em 0;
 }
 
 form#report .input {
     clear: left;
     margin: 0.8em 0;
+}
+
+form#report .input label {
+    float: left;
 }
 
 form#report .input input {
@@ -133,10 +138,50 @@ form#report .input input {
     border: solid 1px #ccc;
 }
 
-form#report .autocomplete-input input {
+form#report .select label {
+    display: block;
+}
+
+form#report .select select {
+    display: block;
+    width: 95%;
     padding: 0.5em;
     border: solid 1px #ccc;
+}
+
+form#report .search-or-add-input div.box {
+    border: solid 1px #ccc;
     width: 90%;
+}
+
+form#report .search-or-add-input input.search {
+    border: none;
+    padding: 0.5em;
+    width: 80%;
+}
+
+form#report .search-or-add-input a.add {
+    display: block;
+    float: right;
+    background: transparent url('/static/add.png') center center no-repeat;
+    text-decoration: none;
+    height: 1.9em;
+    width: 1.9em;
+}
+
+form#report .no-label-input {
+    clear: left;
+    margin: 0.8em 0;
+}
+
+form#report .no-label-input input, form#report textarea {
+    border: solid 1px #ccc;
+    width: 90%;
+    padding: 0.5em;
+}
+
+form#report textarea {
+    font-family: sans-serif;
 }
 
 form#report .submit {

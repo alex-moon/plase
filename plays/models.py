@@ -1,11 +1,13 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models import PointField
 import re
 
 class Place(models.Model):
     name = models.CharField(max_length=200)
-    summary = models.TextField()
+    listening_to = models.CharField(max_length=10, blank=True)
+    public = models.CharField(max_length=3, blank=True)
+    summary = models.TextField(blank=True)
 
     def __unicode__(self):
         return self.name

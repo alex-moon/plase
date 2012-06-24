@@ -6,21 +6,45 @@
 
 {% block content %}
 <div id="reportWrapper">
+
 <p id="location-warning" class="error">
 This app uses your current location to place what's playing on the globe.
 Please enable geolocation before telling us what's playing.
 </p>
+
 <form id="report" method="post">
 {% csrf_token %}
-<!-- input type="hidden" name="latitude" id="latitude" value="" />
-<input type="hidden" name="longitude" id="longitude" value="" /-->
 {{ form.location }}
-{% if form.errors %}
+{% if form.errors or place_form.errors %}
 <p class="error">Did you miss something? Don't be shy about filling out the highlighted fields.</p>
 {% endif %}
+
+
 <h2>Where are you?</h2>
+<div id="place-details">
+{% if place_form %}
+
+<input type="hidden" name="place" id="place" value="{{ form.place.value }}" />
+<div class="no-label-input{% if place_form.name.errors %} error{% endif %}">{{ place_form.name }}</div>
+<h2>Tell us about it</h2>
+<div class="input">{{ place_form.summary }}</div>
+<div class="select">{{ place_form.listening_to.label_tag }}{{ place_form.listening_to }}</div>
+<div class="select">{{ place_form.public.label_tag }}{{ place_form.public }}</div>
+
+{% else %}
+
 <input type="hidden" name="place" id="place" value="" />
-<div class="autocomplete-input{% if form.place.errors %} error{% endif %}"><input type="text" name="place_name" id="place-name" /></div>
+<div class="search-or-add-input{% if form.place.errors %} error{% endif %}">
+<div class="box">
+<a class="add" href="javascript:void(0)" onclick="report.addPlace()" title="Add a place">&nbsp;</a>
+<input class="search" type="text" name="place_name" id="place-name" />
+</div><!-- box -->
+</div><!-- search-or-add-input -->
+
+{% endif %}
+</div><!-- place-details -->
+
+
 <h2>What's playing there?</h2>
 <div class="input{% if form.artist.errors %} error{% endif %}">{{ form.artist.label_tag }}{{ form.artist }}</div>
 <div class="input{% if form.title.errors %} error{% endif %}">{{ form.title.label_tag }}{{ form.title }}</div>

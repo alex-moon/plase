@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^/?$', 'plays.views.watch'),
     url(r'^report/?$', 'plays.views.report'),
     url(r'^autocomplete/?', 'plays.views.autocomplete'),
+    url(r'^addPlace/?', 'plays.views.addPlace'),
 )
