@@ -4,16 +4,20 @@ from django.db.models.aggregates import Max
 from django.db.models import F
 from plays.models import Place, Play
 from plays import forms
+from base64 import b64decode
 
 from django.contrib.gis.geos import fromstr
 
 import json
 
 def watch(request):
-    # plays = Play.objects.filter(nothing=False).order_by('started')
-    here = fromstr('POINT(51.57917330186793 -0.12411163452145502)')
-    plays = Play.objects.annotate(max_started=Max('place__play__started')).filter(started=F('max_started')).distance(here).order_by('distance')
-    return render(request, 'watch.html', {'plays' : plays})
+    return render(request, 'watch.html')
+    
+def poll(request):
+    where = request.GET['where']
+    here = fromstr(b64decode(where))
+    plays = Play.objects.filter(nothing=False).annotate(max_started=Max('place__play__started')).filter(started=F('max_started')).distance(here).order_by('distance')
+    return render(request, 'poll.html', {'plays' : plays})
     
 def report(request):
     if request.method == "POST":
@@ -47,10 +51,6 @@ def addPlace(request):
     id = place.id
     form = forms.PlaceForm(instance=place)
     return render(request, 'addPlace.html', {'id' : id, 'form' : form})
-    
-def poll(request, latitude, longitude):
-    # todo
-    return render(request, 'ajax.html', {'content' : 'not sure' })
     
 def autocomplete(request):
     query = request.GET['query']

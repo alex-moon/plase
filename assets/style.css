@@ -81,6 +81,21 @@ ul#watch li p {
     margin: 0.1em 0;
 }
 
+ul#watch li#geolocation {
+    color: #dcc;
+    background-color: black;
+    font-family: Anivers;
+}
+
+ul#watch li#geolocation a {
+    color: white;
+    text-decoration: none;
+}
+
+ul#watch li#geolocation a:hover {
+    text-decoration: underline;
+}
+
 ul#watch li .play {
     font-family: CallunaSans;
 }

@@ -12,4 +12,5 @@ urlpatterns = patterns('',
     url(r'^report/?$', 'plays.views.report'),
     url(r'^autocomplete/?', 'plays.views.autocomplete'),
     url(r'^addPlace/?', 'plays.views.addPlace'),
+    url(r'^poll/?', 'plays.views.poll'),
 )
