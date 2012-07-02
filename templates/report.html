@@ -36,7 +36,7 @@ Please enable geolocation before telling us what's playing.
 <input type="hidden" name="place" id="place" value="" />
 <div class="search-or-add-input{% if form.place.errors %} error{% endif %}">
 <div class="box">
-<a class="add" href="javascript:void(0)" onclick="report.addPlace()" title="Add a place">&nbsp;</a>
+<a id="add-a-place" class="add" href="javascript:void(0)" onclick="report.addPlace()" title="Add a place">&nbsp;</a>
 <input class="search" type="text" name="place_name" id="place-name" />
 </div><!-- box -->
 </div><!-- search-or-add-input -->

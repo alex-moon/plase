@@ -4,6 +4,7 @@ html, body {
     padding: 0;
     position: relative;
     font-family: MuseoSans;
+    color: #222;
 }
 
 body.report {
@@ -59,6 +60,7 @@ ul#watch li {
     padding: 1em;
     border-bottom: solid 3px black;
     background-color: white;
+    color: #000;
 }
 
 ul#watch li#report {
@@ -208,6 +210,12 @@ form#report .submit input {
     margin-left: 20%;
 }
 
+form#report #tell-us {
+    display: none;
+}
+
+
+
 ul.errorlist {
     list-style: none;
 }
@@ -262,7 +270,7 @@ ul.errorlist ul.errorlist {
 
 footer {
     background-image: -webkit-linear-gradient(bottom, #cc2326 34%, #ef3d40 67%, #ef5c61 84%);
-    color: white;
+    color: #411;
     font-family: MuseoSans;
     padding: 16px 0 0;
     text-align: center;

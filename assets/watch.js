@@ -13,7 +13,6 @@ var watch = {
         longitude = position.coords.longitude;
         if (latitude && longitude) {
             where = Base64.encode('POINT(' + latitude + ' ' + longitude + ')');
-console.log(where);
             $.get('/poll/', { 'where' : where }, function(data){
                 $('#watch').html(data);
             });

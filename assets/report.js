@@ -24,7 +24,10 @@ var report = {
     addPlace : function() {
         var placeName = $('#place-name').val();
         $.get('/addPlace/', {'place-name' : placeName}, function(data){
-            $('#place-details').html(data);
+            $('#add-a-place').fadeOut(200, function(){
+                $('#place-details').html(data);
+                $('#tell-us').slideDown(500);
+            });
         });
     }
 };
