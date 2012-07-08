@@ -12,6 +12,9 @@ This app uses your current location to place what's playing on the globe.
 Please enable geolocation before telling us what's playing.
 </p>
 
+<!--ul class="error">{{ form.errors }}</ul>
+<ul class="error">{{ place_form.errors }}</ul-->
+
 <form id="report" method="post">
 {% csrf_token %}
 {{ form.location }}
@@ -24,7 +27,7 @@ Please enable geolocation before telling us what's playing.
 <div id="place-details">
 {% if place_form %}
 
-<input type="hidden" name="place" id="place" value="{{ form.place.value }}" />
+{{ form.place }}
 <div class="no-label-input{% if place_form.name.errors %} error{% endif %}">{{ place_form.name }}</div>
 <h2>Tell us about it</h2>
 <div class="input">{{ place_form.summary }}</div>
@@ -33,11 +36,11 @@ Please enable geolocation before telling us what's playing.
 
 {% else %}
 
-<input type="hidden" name="place" id="place" value="" />
+{{ form.place }}
 <div class="search-or-add-input{% if form.place.errors %} error{% endif %}">
 <div class="box">
 <a id="add-a-place" class="add" href="javascript:void(0)" onclick="report.addPlace()" title="Add a place">&nbsp;</a>
-<input class="search" type="text" name="place_name" id="place-name" />
+<input class="search" type="text" name="place_name" id="place-name" value="{{ place_name }}" />
 </div><!-- box -->
 </div><!-- search-or-add-input -->
 
@@ -46,8 +49,14 @@ Please enable geolocation before telling us what's playing.
 
 
 <h2>What's playing there?</h2>
+<div id="nothing">
+{{ form.nothing }}
+<input type="button" value="Nothing" onclick="report.toggleNothing()" id="nothing-button"{% if form.nothing.value %} class="on"{% endif %} />
+</div><!-- nothing -->
+<div id="something"{% if form.nothing.value %} style="display: none"{% endif %}>
 <div class="input{% if form.artist.errors %} error{% endif %}">{{ form.artist.label_tag }}{{ form.artist }}</div>
 <div class="input{% if form.title.errors %} error{% endif %}">{{ form.title.label_tag }}{{ form.title }}</div>
+</div><!-- something -->
 <div class="submit"><input type="submit" value="That's it!" /></div>
 </form>
 </div>

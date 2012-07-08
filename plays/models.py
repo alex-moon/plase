@@ -14,11 +14,11 @@ class Place(models.Model):
         
 class Play(models.Model):
     place = models.ForeignKey(Place)
-    artist = models.CharField(max_length=80, blank=False)
-    title = models.CharField(max_length=100, blank=False)
+    artist = models.CharField(max_length=80, blank=True)
+    title = models.CharField(max_length=100, blank=True)
     location = PointField()
     started = models.DateTimeField(auto_now_add=True)
-    nothing = models.BooleanField(default=False)
+    nothing = models.BooleanField()
     
     objects = GeoManager()
     

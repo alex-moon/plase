@@ -117,6 +117,7 @@ ul#watch li .place {
 .private { background-image: -webkit-linear-gradient(bottom, #ff9f2b 0%, #ffdf9e 60%, #fff2cc 100%); }
 
 
+
 /* REPORT */
 
 #reportWrapper {
@@ -169,6 +170,7 @@ form#report .select select {
 form#report .search-or-add-input div.box {
     border: solid 1px #ccc;
     width: 90%;
+    background: white;
 }
 
 form#report .search-or-add-input input.search {
@@ -199,6 +201,22 @@ form#report .no-label-input input, form#report textarea {
 
 form#report textarea {
     font-family: sans-serif;
+}
+
+form#report #nothing {
+    text-align: center;
+}
+
+form#report #nothing-button {
+    padding: 1em 3em;
+}
+
+form#report #nothing-button.on {
+    border: solid 1px #464;
+    background-image: -webkit-linear-gradient(top, #7ae069 0%, #c6ffb6 60%, #feffd3 100%);
+    border-radius: 2px;
+    font-weight: bold;
+    color: #131;
 }
 
 form#report .submit {
@@ -266,6 +284,7 @@ ul.errorlist ul.errorlist {
 }
 
 
+
 /* FOOTER */
 
 footer {
@@ -277,6 +296,11 @@ footer {
     height: 54px;
     position: relative;
     bottom: 0;
+}
+
+footer a {
+    text-decoration: none;
+    color: #411;
 }
 
 .push { height: 70px; }

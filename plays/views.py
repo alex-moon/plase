@@ -20,6 +20,9 @@ def poll(request):
     return render(request, 'poll.html', {'plays' : plays})
     
 def report(request):
+    # @todo: better to ask forgiveness than take permission
+    place_form = None
+    place_name = ''
     if request.method == "POST":
         if 'summary' in request.POST:
             place = Place.objects.get(id=request.POST['place'])
@@ -28,6 +31,8 @@ def report(request):
                 place_form.save()
             except ValueError:
                 pass
+        if 'place_name' in request.POST:
+            place_name = request.POST['place_name']        
         form = forms.PlayForm(request.POST)
         try:
             form.save()
@@ -36,8 +41,8 @@ def report(request):
             pass
     else:
         form = forms.PlayForm()
-        place_form = None
-    return render(request, 'report.html', {'form' : form, 'place_form' : place_form})
+    
+    return render(request, 'report.html', { 'form' : form, 'place_form' : place_form, 'place_name' : place_name })
     
 def addPlace(request):
     place_name = request.GET['place-name']

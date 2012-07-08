@@ -7,7 +7,7 @@ var report = {
         navigator.geolocation.getCurrentPosition(this.setCoords);
         $('#place-name').autocomplete({
             'serviceUrl' : '/autocomplete/',
-            'onSelect' : function(value, data) { $('#place').val(data); },
+            'onSelect' : function(value, data) { $('#id_place').val(data); },
         });
     },
     setCoords : function(position) {
@@ -29,5 +29,16 @@ var report = {
                 $('#tell-us').slideDown(500);
             });
         });
+    },
+    toggleNothing: function() {
+        var nothing = $('#id_nothing').val();
+        if (nothing) {
+            $('#id_nothing').val('');
+            $('#something').slideDown();
+        } else {
+            $('#id_nothing').val(true);
+            $('#something').slideUp();
+        }
+        $('#nothing-button').toggleClass('on');
     }
 };
