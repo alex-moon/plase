@@ -1,7 +1,7 @@
 #!/bin/bash
-yes yes | python /var/www/plase/manage.py collectstatic
-if [ -a /var/www/plase/plase.pid ]; then cat /var/www/plase/plase.pid | xargs kill; fi
-# python /var/www/plase/manage.py runfcgi method=threaded host=127.0.0.1 port=80 pidfile=/var/www/plase/plase.pid
-service nginx stop
 source /home/moona/.virtualenvs/plase/bin/activate
+yes yes | python /var/www/plase/manage.py collectstatic
+# if [ -a /var/www/plase/plase.pid ]; then cat /var/www/plase/plase.pid | xargs kill; fi
+# python /var/www/plase/manage.py runfcgi method=threaded host=127.0.0.1 port=80 pidfile=/var/www/plase/plase.pid
+service nginx stop & ps -ef | grep tornado_main | grep -v grep | awk '{print $2}' | xargs kill
 python /var/www/plase/tornado_main.py & service nginx start
