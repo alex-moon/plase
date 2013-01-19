@@ -300,6 +300,18 @@ footer {
     height: 54px;
     position: relative;
     bottom: 0;
+    font-size: smaller;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+footer ul li {
+    display: inline;
+    padding: 0 1em;
 }
 
 footer a {
