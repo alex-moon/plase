@@ -37,8 +37,12 @@ header {
 header h1 {
     margin: 0 auto;
     padding: 0.3em;
-    width: 6em;
+    width: 4em;
     font-family: MuseoSans;
+
+    background-image: url('/static/logo.png');
+    background-repeat: no-repeat;
+    background-position: 6px 19px;
 }
 
 header h1 a {
