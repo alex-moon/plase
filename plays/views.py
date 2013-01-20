@@ -33,6 +33,7 @@ class InitialView(TemplateView):
 class ReportView(FormView):
     template_name = 'report.html'
     form_class = forms.PlayForm
+    success_url = '/'
 
     def post(self, request, *args, **kwargs):
         # if we have a Place form, save that first
@@ -45,6 +46,20 @@ class ReportView(FormView):
                 kwargs.update({'place_form': place_form})
 
         return super(ReportView, self).post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+
+        data['location'] = [x for x in data['location']]
+        data['place'] = data['place'].name
+
+        connect = pika.BlockingConnection()
+        channel = connect.channel()
+        # channel.queue_declare(queue='plase', durable=True)
+        channel.basic_publish(exchange='', routing_key='plase', body=json.dumps(data))
+        connect.close()
+
+        return super(ReportView, self).form_valid(form)
 
 
 class AddPlaceView(FormView):

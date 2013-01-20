@@ -19,7 +19,13 @@ class PollHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         # simple echo so we know stuff's working
-        self.write_message(json.dumps({'message': message}))
+        # self.write_message(json.dumps({'message': message}))
+
+        # same thing but through RabbitMQ
+        self.application.pc.channel.basic_publish(exchange='', routing_key='plase', body=json.dumps({
+            'action': 'test_echo',
+            'message': message,
+        }))
 
     def on_close(self):
         self.application.pc.remove_event_listener(self)

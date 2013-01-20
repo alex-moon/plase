@@ -11,7 +11,7 @@ class Place(models.Model):
 
     def __unicode__(self):
         return self.name
-        
+
 class Play(models.Model):
     place = models.ForeignKey(Place)
     artist = models.CharField(max_length=80, blank=True)
@@ -19,13 +19,11 @@ class Play(models.Model):
     location = PointField()
     started = models.DateTimeField(auto_now_add=True)
     nothing = models.BooleanField()
-    
+
     objects = GeoManager()
-    
+
     def __unicode__(self):
-        when = self.started.strftime("%H:%M") # @todo better datetime representation
+        when = self.started.strftime("%H:%M")  # @todo better datetime representation
         if self.nothing:
             return "Nothing (%s)" % (when)
         return "%s - %s (%s)" % (self.artist, self.title, when)
-
-
