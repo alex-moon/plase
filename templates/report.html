@@ -25,9 +25,10 @@ Please enable geolocation before telling us what's playing.
 
 <h2>Where are you?</h2>
 <div id="place-details">
+{{ form.place }}
+
 {% if place_form %}
 
-{{ form.place }}
 <div class="no-label-input{% if place_form.name.errors %} error{% endif %}">{{ place_form.name }}</div>
 <h2>Tell us about it</h2>
 <div class="input">{{ place_form.summary }}</div>
@@ -36,11 +37,10 @@ Please enable geolocation before telling us what's playing.
 
 {% else %}
 
-{{ form.place }}
 <div class="search-or-add-input{% if form.place.errors %} error{% endif %}">
 <div class="box">
 <a id="add-a-place" class="add" href="javascript:void(0)" onclick="report.addPlace()" title="Add a place">&nbsp;</a>
-<input class="search" type="text" name="place_name" id="place-name" value="{{ place_name }}" />
+<input class="search" type="text" name="place_name" id="place-name" value="{{ request.POST.place_name }}" />
 </div><!-- box -->
 </div><!-- search-or-add-input -->
 
