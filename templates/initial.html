@@ -5,3 +5,11 @@
     <p class="place"><span>{{ play.place.name }}</span></p>
 </li>
 {% endfor %}
+<script>
+watch.copynode = $(
+	'<li>' +
+	'<p class="play"><span class="artist" /> &mdash; <span class="title" /></p>' +
+	'<p class="place"><span /></p>' +
+    '</li>'
+);
+</script>

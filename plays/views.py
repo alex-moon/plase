@@ -48,6 +48,7 @@ class ReportView(FormView):
         return super(ReportView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
+        self.instance = form.save()
         data = form.cleaned_data
 
         data['location'] = [x for x in data['location']]
@@ -55,7 +56,6 @@ class ReportView(FormView):
 
         connect = pika.BlockingConnection()
         channel = connect.channel()
-        # channel.queue_declare(queue='plase', durable=True)
         channel.basic_publish(exchange='', routing_key='plase', body=json.dumps(data))
         connect.close()
 
@@ -68,7 +68,7 @@ class AddPlaceView(FormView):
 
     def get_form(self, form_class):
         # by name instead of by pk
-        place = Place.objects.get_or_create(name=self.request.GET['place-name'])
+        place, created = Place.objects.get_or_create(name=self.request.GET['place-name'])
         return self.form_class(instance=place, **self.get_form_kwargs())
 
 

@@ -35,3 +35,5 @@ var watch = {
         };
     }
 };
+
+function cheat(){navigator.geolocation.getCurrentPosition = function(callback){callback({'coords':{'latitude':10, 'longitude':10}});};watch.init();}
