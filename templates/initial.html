@@ -1,15 +1,7 @@
 <li id="report"><a href="/report/">Tell us what's playing&hellip;</a></li>
 {% for play in plays %}
-<li class="{% if play.place.public == 'yes' %}public{% else %}private{% endif %}">
+<li data-placeid="{{ play.place.pk }}" class="{% if play.place.public == 'yes' %}public{% else %}private{% endif %}">
     <p class="play"><span class="artist">{{ play.artist}}</span> &mdash; <span class="title">{{ play.title }}</span></p>
     <p class="place"><span>{{ play.place.name }}</span></p>
 </li>
 {% endfor %}
-<script>
-watch.copynode = $(
-	'<li>' +
-	'<p class="play"><span class="artist" /> &mdash; <span class="title" /></p>' +
-	'<p class="place"><span /></p>' +
-    '</li>'
-);
-</script>

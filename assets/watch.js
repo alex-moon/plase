@@ -11,9 +11,9 @@ var watch = {
             where = Base64.encode('POINT(' + latitude + ' ' + longitude + ')');
             $.get('/initial/', { 'where' : where }, function(data){
                 $('#watch').html(data);
+                watch.poll();
             });
         }
-        watch.poll();
     },
     poll : function() {
         navigator.geolocation.getCurrentPosition(watch.getUpdates);
@@ -26,6 +26,14 @@ var watch = {
         };
         watch.ws.onmessage = function(e){
             console.log(e.data);
+            var report = $.parseJSON(e.data);
+            console.log(report);
+            if (report.nothing) {
+                console.log('Nothing is playing at place ' + report.place.id + '! So remove: ', $('[data-placeid=' + report.place.id + ']'));
+                $('[data-placeid=' + report.place.id + ']').remove();
+            } else {
+                console.log('Something is playing apparently');
+            }
         };
         watch.ws.onclose = function(){
             console.log('WebSocket closed');
@@ -36,4 +44,5 @@ var watch = {
     }
 };
 
-function cheat(){navigator.geolocation.getCurrentPosition = function(callback){callback({'coords':{'latitude':10, 'longitude':10}});};watch.init();}
+// testing only
+$(function(){navigator.geolocation.getCurrentPosition = function(callback){callback({'coords':{'latitude':10, 'longitude':10}});};watch.init();});

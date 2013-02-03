@@ -1,17 +1,20 @@
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 from django.contrib.gis.db.models import PointField, GeoManager
-import re
+
 
 class Place(models.Model):
     name = models.CharField(max_length=200)
     listening_to = models.CharField(max_length=10, blank=True)
     public = models.CharField(max_length=3, blank=True)
-    summary = models.TextField(blank=True)
+
+    objects = GeoManager()
 
     def __unicode__(self):
         return self.name
 
+
+# NB: see backbone_api module for post_save receiver
 class Play(models.Model):
     place = models.ForeignKey(Place)
     artist = models.CharField(max_length=80, blank=True)
@@ -27,3 +30,7 @@ class Play(models.Model):
         if self.nothing:
             return "Nothing (%s)" % (when)
         return "%s - %s (%s)" % (self.artist, self.title, when)
+
+
+class Happening(models.Model):
+    pass

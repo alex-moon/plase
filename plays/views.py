@@ -11,9 +11,6 @@ from base64 import b64decode
 
 from django.contrib.gis.geos import fromstr
 
-import json
-import pika
-
 
 class WatchView(TemplateView):
     template_name = 'watch.html'
@@ -49,16 +46,6 @@ class ReportView(FormView):
 
     def form_valid(self, form):
         self.instance = form.save()
-        data = form.cleaned_data
-
-        data['location'] = [x for x in data['location']]
-        data['place'] = data['place'].name
-
-        connect = pika.BlockingConnection()
-        channel = connect.channel()
-        channel.basic_publish(exchange='', routing_key='plase', body=json.dumps(data))
-        connect.close()
-
         return super(ReportView, self).form_valid(form)
 
 

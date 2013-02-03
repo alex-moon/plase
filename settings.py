@@ -30,9 +30,9 @@ USE_L10N = True
 USE_TZ = True
 MEDIA_ROOT = '/var/www/plase/media/'
 MEDIA_URL = '/media/'
-STATIC_ROOT = '/var/www/plase/static/'
+STATIC_ROOT = '/var/www/plase/_static/'
 STATIC_URL = '/static/'
-ADMIN_MEDIA_PREFIX = '/static/admin/'
+ADMIN_MEDIA_PREFIX = '/_static/admin/'
 STATICFILES_DIRS = (
     '/var/www/plase/assets/',
 )
@@ -84,6 +84,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.gis',
+    'django_extensions',
+    'backbone',
     'plays',
 )
 

@@ -2,6 +2,9 @@ from django.conf.urls import patterns, include, url
 from django.contrib.gis import admin
 admin.autodiscover()
 
+import backbone
+backbone.autodiscover()
+
 from plays import views
 
 urlpatterns = patterns('',
@@ -12,4 +15,5 @@ urlpatterns = patterns('',
     url(r'^initial/?$', views.InitialView.as_view(), name='initial'),
     url(r'^addPlace/?', views.AddPlaceView.as_view(), name='addPlace'),
     url(r'^autocomplete/?', 'plays.views.autocomplete'),
+    url(r'^api/', include(backbone.site.urls)),
 )
