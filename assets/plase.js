@@ -1,37 +1,46 @@
+// for testing
+navigator.geolocation.getCurrentPosition = function(callback) { return callback({'coords': {'latitude': 10, 'longitude': 10 }}); };
+// -----------
+
 function Plase () {
     var plase = {
         // Latitude/longitude spherical geodesy formulae & scripts (c) Chris Veness 2002-2012
         // www.movable-type.co.uk/scripts/latlong.html
         LatLon: function(latitude, longitude) {
-            this._radius = 6371;
-            this._lat = typeof(lat)=='number' ? lat : typeof(lat)=='string' && lat.trim()!=='' ? +lat : NaN;
-            this._lon = typeof(lon)=='number' ? lon : typeof(lon)=='string' && lon.trim()!=='' ? +lon : NaN;
-            this.distanceTo = function(point) {
+            self = this;
+            self._radius = 6371;
+            self._lat = typeof(latitude)=='number' ? latitude : typeof(latitude)=='string' && latitude.trim()!=='' ? +latitude : NaN;
+            self._lon = typeof(longitude)=='number' ? longitude : typeof(longitude)=='string' && longitude.trim()!=='' ? +longitude : NaN;
+            self.distanceTo = function(point) {
                 precision = 4;
               
-                var R = this._radius;
-                var lat1 = this._lat.toRad(), lon1 = this._lon.toRad();
+                var R = self._radius;
+                var lat1 = self._lat.toRad(), lon1 = self._lon.toRad();
                 var lat2 = point._lat.toRad(), lon2 = point._lon.toRad();
                 var dLat = lat2 - lat1;
                 var dLon = lon2 - lon1;
 
                 var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1) * Math.cos(lat2) * 
+                      Math.cos(lat1) * Math.cos(lat2) *
                       Math.sin(dLon/2) * Math.sin(dLon/2);
                 var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 var d = R * c;
                 return d.toPrecisionFixed(precision);
             };
-            this.toString = function() { return Base64.encode('POINT(' + latitude + ' ' + longitude + ')'); };
-        },
-        locate: function() {
-            navigator.geolocation.getCurrentPosition(function(position){
-                plase.here = plase.LatLon(position.coords.latitude, position.coords.longitude);
-                _.delay(plase.locate, 30000);
-            });
-        },
+            self.toString = function() { return Base64.encode('POINT(' + latitude + ' ' + longitude + ')'); };
+            return self;
+        }
+    };
 
-        // Models
+    plase.locate = function() {
+        navigator.geolocation.getCurrentPosition(function(position){
+            plase.here = plase.LatLon(position.coords.latitude, position.coords.longitude);
+            _.delay(plase.locate, 30000);
+        });
+    };
+
+    // MODELS
+    plase.models = {
         Place: Backbone.Model.extend({
             defaults: function() {
                 return {
@@ -75,22 +84,31 @@ function Plase () {
                 play.place = place;
                 return play;
             }
-        }),
+        })
+    };
+
+    // COLLECTIONS
+    plase.collections = {
         Places: Backbone.Collection.extend({
-            model: plase.Place,
+            model: plase.models.Place,
             url: '/places',
-            comparator: Place.distance
+            comparator: plase.models.Place.distance
         }),
         Plays: Backbone.Collection.extend({
-            model: plase.Play,
+            model: plase.models.Play,
             url: '/plays'
-        }),
-        places: new plase.Places(),
-        plays: new plase.Plays(),
+        })
+    };
+
+    plase.places = new plase.collections.Places();
+    plase.plays = new plase.collections.Plays();
+
+    // VIEWS
+    plase.views = {
         PlayItemView: Backbone.View.extend({
             tagName: 'li',
             template: _.template($('#play-item-template').html()),
-            model: plase.Play,
+            model: plase.models.Play,
             events: {
                 // events
             },
@@ -125,6 +143,4 @@ function Plase () {
     // do initialisation
     plase.locate();
     return plase;
-}
-
-var app = new Plase();
+}$(function(){window.plase = new Plase();});
