@@ -12,6 +12,7 @@ document.write('<script src=' +
 <script type="text/javascript" src="{{ STATIC_URL }}jquery.autocomplete.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}underscore.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}backbone.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}base64.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}plase.js"></script>
 <link rel="stylesheet" href="/static/fonts.css">
 <link rel="stylesheet" href="/static/style.css">
@@ -26,7 +27,10 @@ document.write('<script src=' +
         <!-- some links -->
     </header>
     <div id="content">
-    {% block content %}{{ content|safe }}{% endblock %}
+        <ul id="watch">
+            <li id="geolocation">Please enable Geolocation to see what's playing near you. If you want to hide your own location, or find out what's playing somewhere else, why not use a Geolocation spoofer like the <a href="https://play.google.com/store/apps/details?id=com.lexa.fakegpsdonate&hl=en">Fake GPS Location</a> app?
+            </li>
+        </ul>
     </div><!-- content -->
     <div class="push"><!-- bullshit hack to make the footer stick to the bottom --></div>
     </div><!-- wrapper -->

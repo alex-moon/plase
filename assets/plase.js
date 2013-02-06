@@ -58,13 +58,11 @@ function Plase () {
                 return plase.here.distanceTo(there);
             },
             parse: function(raw_place) {
-                // @todo: does this overwrite the plays list or add to it?
-                // @todo: also, we want to ignore this on save
                 var place = _.clone(raw_place);
-                var plays = _(raw_place.plays).map(function(raw_play, i, list){
-                    return plase.plays.add(raw_play, {merge: true});
+                _(raw_place.plays).each(function(raw_play, i, list){
+                    plase.plays.add(raw_play, {merge: true});
+                    place.plays[i] = plase.plays.get(raw_play.id);
                 });
-                place.plays = plays;
                 return place;
             }
         }),
@@ -74,13 +72,13 @@ function Plase () {
                     'artist': '',
                     'location': '',
                     'nothing': false,
-                    'place': new plase.Place()
+                    'place': new plase.models.Place()
                 };
             },
             parse: function(raw_play) {
-                // @todo: ignore on save
                 var play = _.clone(raw_play);
-                var place = plase.places.add(raw_play.place, {merge: true});
+                plase.places.add(raw_play.place, {merge: true});
+                place = plase.places.get(raw_play.place.id);
                 play.place = place;
                 return play;
             }
@@ -91,12 +89,12 @@ function Plase () {
     plase.collections = {
         Places: Backbone.Collection.extend({
             model: plase.models.Place,
-            url: '/places',
+            url: '/api/plays/place',
             comparator: plase.models.Place.distance
         }),
         Plays: Backbone.Collection.extend({
             model: plase.models.Play,
-            url: '/plays'
+            url: '/api/plays/play'
         })
     };
 
