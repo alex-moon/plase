@@ -1,5 +1,10 @@
 // for testing
 navigator.geolocation.getCurrentPosition = function(callback) { return callback({'coords': {'latitude': 10, 'longitude': 10 }}); };
+function cheat(latitude, longitude) {
+    navigator.geolocation.getCurrentPosition = function(callback) {
+        return callback({'coords': {'latitude': latitude, 'longitude': longitude}});
+    };
+}
 // -----------
 
 function Plase () {
@@ -9,14 +14,12 @@ function Plase () {
         LatLon: function(latitude, longitude) {
             self = this;
             self._radius = 6371;
-            self._lat = typeof(latitude)=='number' ? latitude : typeof(latitude)=='string' && latitude.trim()!=='' ? +latitude : NaN;
-            self._lon = typeof(longitude)=='number' ? longitude : typeof(longitude)=='string' && longitude.trim()!=='' ? +longitude : NaN;
+            self._lat = (typeof(latitude)=='number' || typeof(latitude)=='string') ? +latitude : NaN;
+            self._lon = (typeof(longitude)=='number' || typeof(longitude)=='string') ? +longitude : NaN;
             self.distanceTo = function(point) {
-                precision = 4;
-              
                 var R = self._radius;
-                var lat1 = self._lat.toRad(), lon1 = self._lon.toRad();
-                var lat2 = point._lat.toRad(), lon2 = point._lon.toRad();
+                var lat1 = self._lat * Math.PI / 180, lon1 = self._lon * Math.PI / 180;
+                var lat2 = point._lat * Math.PI / 180, lon2 = point._lon * Math.PI / 180;
                 var dLat = lat2 - lat1;
                 var dLon = lon2 - lon1;
 
@@ -25,18 +28,19 @@ function Plase () {
                       Math.sin(dLon/2) * Math.sin(dLon/2);
                 var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 var d = R * c;
-                return d.toPrecisionFixed(precision);
+                return d;
             };
-            self.toString = function() { return Base64.encode('POINT(' + latitude + ' ' + longitude + ')'); };
+            self.toString = function() { return Base64.encode('POINT(' + self._lat + ' ' + self._lon + ')'); };
             return self;
         }
     };
 
     plase.locate = function() {
+        var here = false;
         navigator.geolocation.getCurrentPosition(function(position){
-            plase.here = plase.LatLon(position.coords.latitude, position.coords.longitude);
-            _.delay(plase.locate, 30000);
+            here = plase.LatLon(position.coords.latitude, position.coords.longitude);
         });
+        return here.toString();
     };
 
     // MODELS
@@ -57,6 +61,7 @@ function Plase () {
                 var there = plase.LatLon(place.get('latitude'), place.get('longitude'));
                 return plase.here.distanceTo(there);
             },
+            // @todo: implement general hasMany relations
             parse: function(raw_place) {
                 var place = _.clone(raw_place);
                 _(raw_place.plays).each(function(raw_play, i, list){
@@ -64,6 +69,13 @@ function Plase () {
                     place.plays[i] = plase.plays.get(raw_play.id);
                 });
                 return place;
+            },
+            toJSON: function() {
+                var raw_place = Backbone.Model.prototype.toJSON.call(this);
+                _(raw_place.plays).each(function(play, i, list) {
+                    raw_place[i] = Backbone.Model.prototype.toJSON.call(play);
+                });
+                return raw_place;
             }
         }),
         Play: Backbone.Model.extend({
@@ -75,12 +87,18 @@ function Plase () {
                     'place': new plase.models.Place()
                 };
             },
+            // @todo: implement general hasOne relations
             parse: function(raw_play) {
                 var play = _.clone(raw_play);
                 plase.places.add(raw_play.place, {merge: true});
                 place = plase.places.get(raw_play.place.id);
                 play.place = place;
                 return play;
+            },
+            toJSON: function() {
+                var raw_play = Backbone.Model.prototype.toJSON.call(this);
+                raw_play.place = Backbone.Model.prototype.toJSON.call(raw_play.place);
+                return raw_play;
             }
         })
     };
@@ -104,9 +122,7 @@ function Plase () {
     // VIEWS
     plase.views = {
         PlayItemView: Backbone.View.extend({
-            tagName: 'li',
             template: _.template($('#play-item-template').html()),
-            model: plase.models.Play,
             events: {
                 // events
             },
@@ -115,12 +131,12 @@ function Plase () {
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function() {
-                this.$el.html(this.template(this.model.toJSON()));
+                this.$el.html(this.template({'play': this.model.toJSON()}));
                 return this;
             }
         }),
         PlaysListView: Backbone.View.extend({
-            el: $('#plays'),
+            el: $('#watch'),
             reportTemplate: _.template($('#report-template').html()),
             collection: plase.plays,
             events: {
@@ -128,9 +144,17 @@ function Plase () {
             },
             initialize: function() {
                 this.collection.fetch();
+                this.listenTo(this.collection, 'add', this.addOne);
+                this.listenTo(this.collection, 'reset', this.addAll);
             },
-            render: function() {
-                // this.$el.html(this.template(this.collection));
+            // @todo: this logic is obviously wrong if a new Play is added for an existing Place
+            addOne: function(play) {
+                var view = new plase.views.PlayItemView({'model': play});
+                this.$el.append(view.render().el);
+            },
+            addAll: function() {
+                $('#geolocation').remove();
+                this.collection.each(this.addOne, this);
             },
             report: function() {
                 // do report
@@ -138,7 +162,23 @@ function Plase () {
         })
     };
 
-    // do initialisation
-    plase.locate();
+    // INITIALISATION
+    // ubiquitous transparent location header
+    $(document).ajaxSend(function(e, xhr, options) { xhr.setRequestHeader("where", plase.locate()); });
+    (function(){
+        // get initial list
+        plase.watch = new plase.views.PlaysListView();
+
+        // open our websocket
+        var ws = new WebSocket('ws://localhost:81/poll/');
+        ws.onclose = function(){ console.log('WebSocket closed'); };
+        ws.onerror = function(e){ console.log('WebSocket error: ', e); };
+        ws.onmessage = function(e){
+            console.log('message!');
+            var raw_play = $.parseJSON(e.data);
+            console.log(raw_play);
+            plase.plays.add(raw_play, {'merge': true});
+        };
+    })();
     return plase;
 }$(function(){window.plase = new Plase();});

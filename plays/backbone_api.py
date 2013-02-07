@@ -13,14 +13,15 @@ import backbone
 from base64 import b64decode
 import pika
 
+
 class PlaceView(BackboneAPIView):
     model = Place
     form = PlaceForm
-    display_fields = ('name', 'listening_to', 'public')
+    display_fields = ('id', 'name', 'listening_to', 'public')
 
     """ @todo:
     def queryset(self, request):
-        here = fromstr(b64decode(request.GET['where']))
+        here = fromstr(b64decode(request.META['HTTP_WHERE']))
         return self.model.objects.annotate(max_started=Max('play__started'))\
                                  .filter(play__started=F('max_started'))\
                                  .distance(here, field_name='play__location')\
@@ -48,10 +49,11 @@ class PlaceView(BackboneAPIView):
 class PlayView(BackboneAPIView):
     model = Play
     form = PlayForm
-    display_fields = ('artist', 'title', 'started', 'nothing')
+    display_fields = ('id', 'artist', 'title', 'started', 'nothing')
 
     def queryset(self, request):
-        here = fromstr(b64decode(request.GET['where']))
+        where = request.META['HTTP_WHERE']
+        here = fromstr(b64decode(where))
         return self.model.objects.filter(nothing=False)\
                                  .annotate(max_started=Max('place__play__started'))\
                                  .filter(started=F('max_started')).distance(here)\
@@ -72,10 +74,12 @@ class PlayView(BackboneAPIView):
 
 @receiver(post_save, sender=Play)
 def on_play_save(sender, instance=False, created=False, **kwargs):
-    data = PlayView().serialize(instance, PlayView.display_fields)
+    print "post-save called! About to send new play over the wire..."
+    view = PlayView()
+    data = view.serialize(instance, PlayView.display_fields)
     connect = pika.BlockingConnection()
     channel = connect.channel()
-    channel.basic_publish(exchange='', routing_key='plase', body=PlayView.json_dumps(data))
+    channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
     connect.close()
 
 backbone.site.register(PlaceView)

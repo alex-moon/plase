@@ -1,7 +1,5 @@
 from django import forms
-from django.forms.models import modelformset_factory
 from plays.models import Place, Play
-from django.contrib.gis.geos import fromstr
 from django.contrib.gis.forms.fields import GeometryField
 
 

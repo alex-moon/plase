@@ -1,30 +1,12 @@
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.db.models.aggregates import Max
-from django.db.models import F
 from django.views.generic import TemplateView, FormView
-from django.http import HttpResponse
-
-from plays.models import Place, Play
+from plays.models import Place
 from plays import forms
-from base64 import b64decode
-
-from django.contrib.gis.geos import fromstr
 
 
-class WatchView(TemplateView):
-    template_name = 'watch.html'
-
-
-class InitialView(TemplateView):
-    template_name = 'initial.html'
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(InitialView, self).get_context_data(*args, **kwargs)
-        where = self.request.GET['where']
-        here = fromstr(b64decode(where))
-        context['plays'] = Play.objects.filter(nothing=False).annotate(max_started=Max('place__play__started')).filter(started=F('max_started')).distance(here).order_by('distance')
-        return context
+class PlaseView(TemplateView):
+    template_name = 'base.html'
 
 
 class ReportView(FormView):
