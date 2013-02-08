@@ -64,7 +64,10 @@ class PlayView(BackboneAPIView):
 
         # clean place and location a little for serialization
         data['place'] = obj.place.__dict__
-        del data['place']['_state']
+        try:
+            del data['place']['_state']
+        except KeyError:
+            pass
 
         data['latitude'] = obj.location.get_y()
         data['longitude'] = obj.location.get_x()

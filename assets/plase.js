@@ -175,9 +175,23 @@ function Plase () {
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
             console.log('message!');
-            var raw_play = $.parseJSON(e.data);
+            var raw_play = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No.
             console.log(raw_play);
-            plase.plays.add(raw_play, {'merge': true});
+
+            // if the new play has an existing place, replace the play
+            var place = plase.places.get(raw_play.place.id);
+            if (!_(place).isUndefined()) {
+                raw_play['place'] = place;
+                plase.plays.each(function(play, i, l){
+                    if (play.get('place') == place) {
+                        play.set(raw_play);
+                    }
+                });
+
+            // otherwise add the new play
+            } else {
+                plase.plays.add(raw_play);
+            }
         };
     })();
     return plase;
