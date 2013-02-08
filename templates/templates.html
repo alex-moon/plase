@@ -1,7 +1,7 @@
-<script id="play-item-template" type="text/template">
-<li data-placeid="<%= play.place.id %>" class="<%= play.place.public == 'yes' ? 'public' : 'private' %>">
-    <p class="play"><span class="artist"><%= play.artist %></span> &mdash; <span class="title"><%= play.title %></span></p>
-    <p class="place"><span><%= play.place.name %></span></p>
+<script id="place-item-template" type="text/template">
+<li data-placeid="<%= id %>" class="<%= public == 'yes' ? 'public' : 'private' %>">
+    <p class="play"><span class="artist"><%= last_play.artist %></span> &mdash; <span class="title"><%= last_play.title %></span></p>
+    <p class="place"><span><%= name %></span></p>
 </li>
 </script>
 

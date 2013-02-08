@@ -19,14 +19,9 @@ class PlaceView(BackboneAPIView):
     form = PlaceForm
     display_fields = ('id', 'name', 'listening_to', 'public')
 
-    """ @todo:
+    """ @todo: """
     def queryset(self, request):
-        here = fromstr(b64decode(request.META['HTTP_WHERE']))
-        return self.model.objects.annotate(max_started=Max('play__started'))\
-                                 .filter(play__started=F('max_started'))\
-                                 .distance(here, field_name='play__location')\
-                                 .order_by('distance')
-    """
+        return self.model.objects.filter(pk__in=[x.place.pk for x in PlayView().queryset(request)])
 
     def serialize(self, obj, fields):
         data = super(PlaceView, self).serialize(obj, fields)
@@ -41,6 +36,8 @@ class PlaceView(BackboneAPIView):
             del play_dict['_state']
             del play_dict['location']
 
+            if 'last_play' not in data:
+                data['last_play'] = play_dict
             data['plays'].append(play_dict)
 
         return data

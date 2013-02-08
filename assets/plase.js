@@ -51,30 +51,35 @@ function Plase () {
                     'name': '',
                     'listening_to': '',
                     'public': 'yes',
-                    'latitude': 0.0,
-                    'longitude': 0.0,
-                    'plays': []
+                    'plays': [],
+                    'last_play': ''
                 };
             },
+            initialize: function() {
+                Backbone.Model.prototype.initialize.apply(this, arguments);  // super
+                this.view = new plase.views.PlaceItemView({'model': this});
+            },
             distance: function(place) {
-                if (place === null) { place = this; }
-                var there = plase.LatLon(place.get('latitude'), place.get('longitude'));
-                return plase.here.distanceTo(there);
+                if (_(place).isUndefined()) place = this;
+                return place.last_play.distance();
             },
             // @todo: implement general hasMany relations
             parse: function(raw_place) {
                 var place = _.clone(raw_place);
                 _(raw_place.plays).each(function(raw_play, i, list){
+                    if (_(raw_place.last_play).isUndefined()) raw_place.last_play = raw_play;
                     plase.plays.add(raw_play, {merge: true});
                     place.plays[i] = plase.plays.get(raw_play.id);
                 });
+                if (!_(raw_place.last_play).isUndefined()) {
+                    plase.plays.add(raw_place.last_play, {merge: true});
+                    place.last_play = plase.plays.get(raw_place.last_play.id);
+                }
                 return place;
             },
             toJSON: function() {
                 var raw_place = Backbone.Model.prototype.toJSON.call(this);
-                _(raw_place.plays).each(function(play, i, list) {
-                    raw_place[i] = Backbone.Model.prototype.toJSON.call(play);
-                });
+                raw_place.last_play = Backbone.Model.prototype.toJSON.call(this.get('last_play'));
                 return raw_place;
             }
         }),
@@ -83,9 +88,14 @@ function Plase () {
                 return {
                     'artist': '',
                     'location': '',
-                    'nothing': false,
-                    'place': new plase.models.Place()
+                    'nothing': '',
+                    'place': '',
+                    'started': ''//now()
                 };
+            },
+            distance: function(play) {
+                if (_(play).isUndefined()) play = this;
+                return plase.here.distanceTo(play.location);
             },
             // @todo: implement general hasOne relations
             parse: function(raw_play) {
@@ -112,7 +122,8 @@ function Plase () {
         }),
         Plays: Backbone.Collection.extend({
             model: plase.models.Play,
-            url: '/api/plays/play'
+            url: '/api/plays/play',
+            comparator: 'started'
         })
     };
 
@@ -121,8 +132,8 @@ function Plase () {
 
     // VIEWS
     plase.views = {
-        PlayItemView: Backbone.View.extend({
-            template: _.template($('#play-item-template').html()),
+        PlaceItemView: Backbone.View.extend({
+            template: _.template($('#place-item-template').html()),
             events: {
                 // events
             },
@@ -131,30 +142,28 @@ function Plase () {
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function() {
-                this.$el.html(this.template({'play': this.model.toJSON()}));
+                this.$el.html(this.template(this.model.toJSON()));
                 return this;
             }
         }),
-        PlaysListView: Backbone.View.extend({
+        PlacesListView: Backbone.View.extend({
             el: $('#watch'),
             reportTemplate: _.template($('#report-template').html()),
-            collection: plase.plays,
+            collection: plase.places,
             events: {
                 'click #report': 'report'
             },
             initialize: function() {
+                this.listenTo(this.collection, 'add', this.drawList);
+                this.listenTo(this.collection, 'reset', this.drawList);
                 this.collection.fetch();
-                this.listenTo(this.collection, 'add', this.addOne);
-                this.listenTo(this.collection, 'reset', this.addAll);
             },
-            // @todo: this logic is obviously wrong if a new Play is added for an existing Place
-            addOne: function(play) {
-                var view = new plase.views.PlayItemView({'model': play});
-                this.$el.append(view.render().el);
+            drawList: function() {
+                this.$el.html('');
+                this.collection.each(this.appendItem, this);
             },
-            addAll: function() {
-                $('#geolocation').remove();
-                this.collection.each(this.addOne, this);
+            appendItem: function(play) {
+                this.$el.append(play.view.render().el);
             },
             report: function() {
                 // do report
@@ -167,7 +176,7 @@ function Plase () {
     $(document).ajaxSend(function(e, xhr, options) { xhr.setRequestHeader("where", plase.locate()); });
     (function(){
         // get initial list
-        plase.watch = new plase.views.PlaysListView();
+        plase.watch = new plase.views.PlacesListView();
 
         // open our websocket
         var ws = new WebSocket('ws://localhost:81/poll/');
@@ -175,23 +184,10 @@ function Plase () {
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
             console.log('message!');
-            var raw_play = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No.
-            console.log(raw_play);
+            var raw_place = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No.
+            console.log(raw_place);
 
-            // if the new play has an existing place, replace the play
-            var place = plase.places.get(raw_play.place.id);
-            if (!_(place).isUndefined()) {
-                raw_play['place'] = place;
-                plase.plays.each(function(play, i, l){
-                    if (play.get('place') == place) {
-                        play.set(raw_play);
-                    }
-                });
-
-            // otherwise add the new play
-            } else {
-                plase.plays.add(raw_play);
-            }
+            plase.places.add(raw_place, {'merge': true});
         };
     })();
     return plase;
