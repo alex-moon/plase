@@ -142,6 +142,7 @@ function Plase () {
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function() {
+                console.log('about to render a place', this.model.toJSON());
                 this.$el.html(this.template(this.model.toJSON()));
                 return this;
             }
@@ -184,9 +185,12 @@ function Plase () {
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
             console.log('message!');
-            var raw_place = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No.
-            console.log(raw_place);
+            var raw_play = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
 
+            // swap the foreign key
+            raw_place = raw_play.place;
+            plase.plays.add(_(raw_play).omit('place'), {'merge': true});
+            raw_place.last_play = plase.plays.get(raw_play.id);
             plase.places.add(raw_place, {'merge': true});
         };
     })();
