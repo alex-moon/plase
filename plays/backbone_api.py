@@ -19,26 +19,29 @@ class PlaceView(BackboneAPIView):
     form = PlaceForm
     display_fields = ('id', 'name', 'listening_to', 'public')
 
-    """ @todo: """
     def queryset(self, request):
         return self.model.objects.filter(pk__in=[x.place.pk for x in PlayView().queryset(request)])
 
     def serialize(self, obj, fields):
-        data = super(PlaceView, self).serialize(obj, fields)
+        place = super(PlaceView, self).serialize(obj, fields)
 
-        data['plays'] = []
-        for play in obj.play_set.all().order_by('-started'):
-            play_dict = play.__dict__
+        data = {'place': place}
+        try:
+            last_play = obj.play_set.all().order_by('-started')[0]
+            play_dict = last_play.__dict__
 
-            play_dict['latitude'] = play.location.get_y()
-            play_dict['longitude'] = play.location.get_x()
+            play_dict['latitude'] = last_play.location.get_y()
+            play_dict['longitude'] = last_play.location.get_x()
+            play_dict['place'] = play_dict['place_id']
 
             del play_dict['_state']
             del play_dict['location']
+            del play_dict['place_id']
 
-            if 'last_play' not in data:
-                data['last_play'] = play_dict
-            data['plays'].append(play_dict)
+            data['last_play'] = play_dict
+            data['place']['last_play'] = play_dict['id']
+        except KeyError:
+            pass
 
         return data
 
@@ -57,17 +60,17 @@ class PlayView(BackboneAPIView):
                                  .order_by('distance')
 
     def serialize(self, obj, fields):
-        data = super(PlayView, self).serialize(obj, fields)
+        play = super(PlayView, self).serialize(obj, fields)
+        play['latitude'] = obj.location.get_y()
+        play['longitude'] = obj.location.get_x()
+
+        data = {'play': play, 'place': obj.place.__dict__}
 
         # clean place and location a little for serialization
-        data['place'] = obj.place.__dict__
         try:
             del data['place']['_state']
         except KeyError:
             pass
-
-        data['latitude'] = obj.location.get_y()
-        data['longitude'] = obj.location.get_x()
 
         return data
 

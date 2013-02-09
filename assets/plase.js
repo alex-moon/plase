@@ -43,15 +43,37 @@ function Plase () {
         return here.toString();
     };
 
+    // extensible model with foreign key field
+    PlaseModel = Backbone.Model.extend({
+        get: function(attribute) {
+            var result = Backbone.Model.prototype.get.call(this, attribute);
+            return attribute != this._fk ? result : plase[this._fk_collection].get(result);
+        },
+        toJSON: function() {
+            var data = Backbone.Model.prototype.toJSON.call(this);
+            data[this._fk] = Backbone.Model.prototype.toJSON.call(this.get(this._fk));
+            return data;
+        },
+        parse: function(response) {
+            var super_parse = Backbone.Model.prototype.parse;
+            if (!_(response[this._fk]).isUndefined()) {
+                plase[this._fk_collection].add(response[this._fk], {'merge': true});
+            }
+            return super_parse.call(this, response[this._model_name]);
+        }
+    });
+
     // MODELS
     plase.models = {
-        Place: Backbone.Model.extend({
+        Place: PlaseModel.extend({
+            _fk: 'last_play',
+            _fk_collection: 'plays',
+            _model_name: 'place',
             defaults: function() {
                 return {
                     'name': '',
                     'listening_to': '',
                     'public': 'yes',
-                    'plays': [],
                     'last_play': ''
                 };
             },
@@ -61,54 +83,25 @@ function Plase () {
             },
             distance: function(place) {
                 if (_(place).isUndefined()) place = this;
-                return place.last_play.distance();
-            },
-            // @todo: implement general hasMany relations
-            parse: function(raw_place) {
-                var place = _.clone(raw_place);
-                _(raw_place.plays).each(function(raw_play, i, list){
-                    if (_(raw_place.last_play).isUndefined()) raw_place.last_play = raw_play;
-                    plase.plays.add(raw_play, {merge: true});
-                    place.plays[i] = plase.plays.get(raw_play.id);
-                });
-                if (!_(raw_place.last_play).isUndefined()) {
-                    plase.plays.add(raw_place.last_play, {merge: true});
-                    place.last_play = plase.plays.get(raw_place.last_play.id);
-                }
-                return place;
-            },
-            toJSON: function() {
-                var raw_place = Backbone.Model.prototype.toJSON.call(this);
-                raw_place.last_play = Backbone.Model.prototype.toJSON.call(this.get('last_play'));
-                return raw_place;
+                return place.get('last_play').distance();
             }
         }),
-        Play: Backbone.Model.extend({
+        Play: PlaseModel.extend({
+            _fk: 'place',
+            _fk_collection: 'places',
+            _model_name: 'play',
             defaults: function() {
                 return {
                     'artist': '',
-                    'location': '',
+                    'location': '', // LatLon
                     'nothing': '',
                     'place': '',
-                    'started': ''//now()
+                    'started': '' //now()
                 };
             },
             distance: function(play) {
                 if (_(play).isUndefined()) play = this;
                 return plase.here.distanceTo(play.location);
-            },
-            // @todo: implement general hasOne relations
-            parse: function(raw_play) {
-                var play = _.clone(raw_play);
-                plase.places.add(raw_play.place, {merge: true});
-                place = plase.places.get(raw_play.place.id);
-                play.place = place;
-                return play;
-            },
-            toJSON: function() {
-                var raw_play = Backbone.Model.prototype.toJSON.call(this);
-                raw_play.place = Backbone.Model.prototype.toJSON.call(raw_play.place);
-                return raw_play;
             }
         })
     };
@@ -142,7 +135,7 @@ function Plase () {
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function() {
-                console.log('about to render a place', this.model.toJSON());
+                console.log('trying to render', this.model.toJSON());
                 this.$el.html(this.template(this.model.toJSON()));
                 return this;
             }
@@ -185,13 +178,9 @@ function Plase () {
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
             console.log('message!');
-            var raw_play = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
-
-            // swap the foreign key
-            raw_place = raw_play.place;
-            plase.plays.add(_(raw_play).omit('place'), {'merge': true});
-            raw_place.last_play = plase.plays.get(raw_play.id);
-            plase.places.add(raw_place, {'merge': true});
+            var data = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
+            plase.plays.add(data.play, {'merge': true});
+            plase.places.add(data.place, {'merge': true});
         };
     })();
     return plase;
