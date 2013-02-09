@@ -64,22 +64,27 @@ class PlayView(BackboneAPIView):
         play['latitude'] = obj.location.get_y()
         play['longitude'] = obj.location.get_x()
 
-        data = {'play': play, 'place': obj.place.__dict__}
-
         # clean place and location a little for serialization
+        place = obj.place.__dict__
         try:
-            del data['place']['_state']
+            del place['_state']
         except KeyError:
             pass
+
+        # set foreign keys
+        play['place'] = place['id']
+        place['last_play'] = play['id']
+
+        data = {'play': play, 'place': place}
 
         return data
 
 
 @receiver(post_save, sender=Play)
 def on_play_save(sender, instance=False, created=False, **kwargs):
-    print "post-save called! About to send new play over the wire..."
     view = PlayView()
     data = view.serialize(instance, PlayView.display_fields)
+    print "sending over the wire: %s" % data
     connect = pika.BlockingConnection()
     channel = connect.channel()
     channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))

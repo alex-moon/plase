@@ -177,8 +177,8 @@ function Plase () {
         ws.onclose = function(){ console.log('WebSocket closed'); };
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
-            console.log('message!');
             var data = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
+            console.log('message!', data);
             plase.plays.add(data.play, {'merge': true});
             plase.places.add(data.place, {'merge': true});
         };
