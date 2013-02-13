@@ -27,6 +27,35 @@ document.write('<script src=' +
         <!-- some links -->
     </header>
     <div id="content">
+        <div id="report">
+            <a href="/report/">Tell us what's playing&hellip;</a>
+            <div id="report-forms" style="display: none">
+                <p class="error" style="display: none">Did you miss something? Don't be shy about filling out the highlighted fields.</p>
+                <form id="add-place">
+                    <h2>Where are you?</h2>
+                    <div id="place-details">
+                        {{ form.place }}
+                        <div class="no-label-input">{{ place_form.name }}</div>
+                        <h2>Tell us about it</h2>
+                        <div class="input">{{ place_form.summary }}</div>
+                        <div class="select">{{ place_form.listening_to.label_tag }}{{ place_form.listening_to }}</div>
+                        <div class="select">{{ place_form.public.label_tag }}{{ place_form.public }}</div>
+                    </div><!-- place-details -->
+                </form>
+                <form id="add-play">
+                    <h2>What's playing there?</h2>
+                    <div id="nothing">
+                        {{ play_form.nothing }}
+                        <input type="button" value="Nothing" id="nothing-button" />
+                    </div><!-- nothing -->
+                    <div id="something">
+                        <div class="input">{{ play_form.artist.label_tag }}{{ play_form.artist }}</div>
+                        <div class="input">{{ play_form.title.label_tag }}{{ play_form.title }}</div>
+                    </div><!-- something -->
+                    <div class="submit"><input type="submit" value="That's it!" /></div>
+                </form>
+            </div> 
+        </div>
         <ul id="watch">
             <li id="geolocation">Please enable Geolocation to see what's playing near you. If you want to hide your own location, or find out what's playing somewhere else, why not use a Geolocation spoofer like the <a href="https://play.google.com/store/apps/details?id=com.lexa.fakegpsdonate&hl=en">Fake GPS Location</a> app?
             </li>

@@ -135,17 +135,15 @@ function Plase () {
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function() {
-                console.log('trying to render', this.model.toJSON());
                 this.$el.html(this.template(this.model.toJSON()));
                 return this;
             }
         }),
         PlacesListView: Backbone.View.extend({
             el: $('#watch'),
-            reportTemplate: _.template($('#report-template').html()),
             collection: plase.places,
             events: {
-                'click #report': 'report'
+                // events
             },
             initialize: function() {
                 this.listenTo(this.collection, 'add', this.drawList);
@@ -158,11 +156,45 @@ function Plase () {
             },
             appendItem: function(play) {
                 this.$el.append(play.view.render().el);
+            }
+        }),
+        PlayReportView: Backbone.View.extend({
+            el: $('#add-play'),
+            collection: plase.plays,
+            template: _.template($('#play-form-template').html()),
+            events: {
+                'submit #add-play': 'finish'
             },
-            report: function() {
-                // do report
+            finish: function() {
+                this.$el.slideUp('fast');
+            }
+        }),
+        PlaceReportView: Backbone.View.extend({
+            el: $('#add-place'),
+            collection: plase.places,
+            template: _.template($('#place-form-template').html()),
+            events: {
+                'submit #add-place': 'finish'
+            },
+            finish: function() {
+                this.$el.slideUp('fast');
             }
         })
+        /*
+        ReportView: Backbone.View.extend({
+            el: $('#report'),
+            template: _.template($('#report-template').html()),
+            events: {
+                'click #report': 'report',
+                'click #report-submit': 'finish'
+            },
+            report: function() {
+                this.$el.slideDown('fast');
+            },
+            finish: function() {
+                this.$el.slideUp('fast');
+            }
+        })*/
     };
 
     // INITIALISATION
@@ -178,7 +210,7 @@ function Plase () {
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
             var data = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
-            console.log('message!', data);
+            // console.log('message!', data);
             plase.plays.add(data.play, {'merge': true});
             plase.places.add(data.place, {'merge': true});
         };

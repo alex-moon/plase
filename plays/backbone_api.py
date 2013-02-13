@@ -84,7 +84,7 @@ class PlayView(BackboneAPIView):
 def on_play_save(sender, instance=False, created=False, **kwargs):
     view = PlayView()
     data = view.serialize(instance, PlayView.display_fields)
-    print "sending over the wire: %s" % data
+    # print "sending over the wire: %s" % data
     connect = pika.BlockingConnection()
     channel = connect.channel()
     channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
