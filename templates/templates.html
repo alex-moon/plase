@@ -1,35 +1,6 @@
 <script id="place-item-template" type="text/template">
-<li data-placeid="<%= id %>" class="<%= public == 'yes' ? 'public' : 'private' %>">
+<li data-placeid="<%= place.id %>" class="<%= place.public == 'yes' ? 'public' : 'private' %>">
     <p class="play"><span class="artist"><%= last_play.artist %></span> &mdash; <span class="title"><%= last_play.title %></span></p>
-    <p class="place"><span><%= name %></span></p>
+    <p class="place"><span><%= place.name %></span></p>
 </li>
-</script>
-
-<script id="place-form-template" type="text/template">
-<h2>Where are you?</h2>
-<div id="place-details">
-{{ form.place }}
-<div class="no-label-input">{{ place_form.name }}</div>
-
-<h2>Tell us about it</h2>
-<div class="input">{{ place_form.summary }}</div>
-<div class="select">{{ place_form.listening_to.label_tag }}{{ place_form.listening_to }}</div>
-<div class="select">{{ place_form.public.label_tag }}{{ place_form.public }}</div>
-
-</div><!-- place-details -->
-</script>
-
-<script id="play-form-template" type="text/template">
-<h2>What's playing there?</h2>
-<div id="nothing">
-{{ form.nothing }}
-<input type="button" value="Nothing" id="nothing-button"<% if form.nothing.value %> class="on"<% endif %> />
-</div><!-- nothing -->
-<div id="something">
-<div class="input">{{ form.artist.label_tag }}{{ form.artist }}</div>
-<div class="input">{{ form.title.label_tag }}{{ form.title }}</div>
-</div><!-- something -->
-<div class="submit"><input type="submit" value="That's it!" /></div>
-</form>
-</div>
 </script>

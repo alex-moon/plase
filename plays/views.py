@@ -12,7 +12,7 @@ class PlaseView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(PlaseView, self).get_context_data(*args, **kwargs)
-        context['play_form'] = PlayForm()
+        context['play_form'] = PlayForm(initial={'place': Place.objects.all()[0]})  # testing
         context['place_form'] = PlaceForm()
         return context
 

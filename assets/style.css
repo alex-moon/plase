@@ -68,13 +68,13 @@ ul#watch li {
     color: #000;
 }
 
-ul#watch li#report {
+div#report {
     background-image: -webkit-linear-gradient(bottom, #ddd 0%, #fcfcfc 40%, #fff 100%);
-    text-align: center;
     padding: 0;
 }
 
-ul#watch li#report a {
+div#report a#show-report {
+    text-align: center;
     text-decoration: none;
     font-family: MuseoSans;
     color: #454;
@@ -125,35 +125,35 @@ ul#watch li .place {
 
 /* REPORT */
 
-#reportWrapper {
-    padding: 1em;
+div#report {
+    padding: 1px;
+    margin: 2px 0;
 }
 
-form#report {
+div#report-forms {
     width: 18em;
-    margin: 1em auto 0;
-    display: none;
+    margin: 1em auto 2em;
 }
 
-form#report h2 {
+div#report h2 {
     font-family: CallunaSans;
 }
 
-form#report label {
+div#report label {
     font-family: Anivers;
     padding: 0.3em 0;
 }
 
-form#report .input {
+div#report .input {
     clear: left;
     margin: 0.8em 0;
 }
 
-form#report .input label {
+div#report .input label {
     float: left;
 }
 
-form#report .input input {
+div#report .input input {
     display: block;
     margin-left: 20%;
     width: 70%;
@@ -161,30 +161,30 @@ form#report .input input {
     border: solid 1px #ccc;
 }
 
-form#report .select label {
+div#report .select label {
     display: block;
 }
 
-form#report .select select {
+div#report .select select {
     display: block;
     width: 95%;
     padding: 0.5em;
     border: solid 1px #ccc;
 }
 
-form#report .search-or-add-input div.box {
+div#report .search-or-add-input div.box {
     border: solid 1px #ccc;
     width: 90%;
     background: white;
 }
 
-form#report .search-or-add-input input.search {
+div#report .search-or-add-input input.search {
     border: none;
     padding: 0.5em;
     width: 80%;
 }
 
-form#report .search-or-add-input a.add {
+div#report .search-or-add-input a.add {
     display: block;
     float: right;
     background: transparent url('/static/add.png') center center no-repeat;
@@ -193,30 +193,30 @@ form#report .search-or-add-input a.add {
     width: 1.9em;
 }
 
-form#report .no-label-input {
+div#report .no-label-input {
     clear: left;
     margin: 0.8em 0;
 }
 
-form#report .no-label-input input, form#report textarea {
+div#report .no-label-input input, div#report textarea {
     border: solid 1px #ccc;
     width: 90%;
     padding: 0.5em;
 }
 
-form#report textarea {
+div#report textarea {
     font-family: sans-serif;
 }
 
-form#report #nothing {
+div#report #nothing {
     text-align: center;
 }
 
-form#report #nothing-button {
+div#report #nothing-button {
     padding: 1em 3em;
 }
 
-form#report #nothing-button.on {
+div#report #nothing-button.on {
     border: solid 1px #464;
     background-image: -webkit-linear-gradient(top, #7ae069 0%, #c6ffb6 60%, #feffd3 100%);
     border-radius: 2px;
@@ -224,16 +224,16 @@ form#report #nothing-button.on {
     color: #131;
 }
 
-form#report .submit {
+div#report .submit {
     margin: 1em 0;
 }
 
-form#report .submit input {
+div#report .submit input {
     padding: 1em;
     margin-left: 20%;
 }
 
-form#report #tell-us {
+div#report #tell-us {
     display: none;
 }
 

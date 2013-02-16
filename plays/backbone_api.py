@@ -22,6 +22,15 @@ class PlaceView(BackboneAPIView):
     def queryset(self, request):
         return self.model.objects.filter(pk__in=[x.place.pk for x in PlayView().queryset(request)])
 
+    def has_add_permission(self, request):
+        return True
+
+    def get_form_instance(self, request, data=None, instance=None):
+        data = data['place']
+        here = fromstr(b64decode(request.META['HTTP_WHERE']))
+        data['location'] = here
+        return super(PlaceView, self).get_form_instance(request, data, instance)
+
     def serialize(self, obj, fields):
         place = super(PlaceView, self).serialize(obj, fields)
 
@@ -52,12 +61,20 @@ class PlayView(BackboneAPIView):
     display_fields = ('id', 'artist', 'title', 'started', 'nothing')
 
     def queryset(self, request):
-        where = request.META['HTTP_WHERE']
-        here = fromstr(b64decode(where))
+        here = fromstr(b64decode(request.META['HTTP_WHERE']))
         return self.model.objects.filter(nothing=False)\
                                  .annotate(max_started=Max('place__play__started'))\
                                  .filter(started=F('max_started')).distance(here)\
                                  .order_by('distance')
+
+    def has_add_permission(self, request):
+        return True
+
+    def get_form_instance(self, request, data=None, instance=None):
+        data = data['play']
+        here = fromstr(b64decode(request.META['HTTP_WHERE']))
+        data['location'] = here
+        return super(PlayView, self).get_form_instance(request, data, instance)
 
     def serialize(self, obj, fields):
         play = super(PlayView, self).serialize(obj, fields)
@@ -75,7 +92,7 @@ class PlayView(BackboneAPIView):
         play['place'] = place['id']
         place['last_play'] = play['id']
 
-        data = {'play': play, 'place': place}
+        data = {'last_play': play, 'place': place}
 
         return data
 

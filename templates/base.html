@@ -28,13 +28,13 @@ document.write('<script src=' +
     </header>
     <div id="content">
         <div id="report">
-            <a href="/report/">Tell us what's playing&hellip;</a>
-            <div id="report-forms" style="display: none">
+            <a id="show-report">Tell us what's playing&hellip;</a>
+            <div id="report-forms">
                 <p class="error" style="display: none">Did you miss something? Don't be shy about filling out the highlighted fields.</p>
                 <form id="add-place">
+                    {% csrf_token %}
                     <h2>Where are you?</h2>
                     <div id="place-details">
-                        {{ form.place }}
                         <div class="no-label-input">{{ place_form.name }}</div>
                         <h2>Tell us about it</h2>
                         <div class="input">{{ place_form.summary }}</div>
@@ -43,7 +43,9 @@ document.write('<script src=' +
                     </div><!-- place-details -->
                 </form>
                 <form id="add-play">
+                    {% csrf_token %}
                     <h2>What's playing there?</h2>
+                    {{ play_form.place }}
                     <div id="nothing">
                         {{ play_form.nothing }}
                         <input type="button" value="Nothing" id="nothing-button" />

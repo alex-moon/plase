@@ -32,6 +32,15 @@ function Plase () {
             };
             self.toString = function() { return Base64.encode('POINT(' + self._lat + ' ' + self._lon + ')'); };
             return self;
+        },
+        // we shouldn't need to define this but here it is
+        formToObject: function(form) {
+            var $form = $(form);
+            var result = $form.serializeArray();
+            result = _(result).map(function(o){
+                return [o.name, o.value];
+            });
+            return _(result).object();
         }
     };
 
@@ -50,7 +59,9 @@ function Plase () {
             return attribute != this._fk ? result : plase[this._fk_collection].get(result);
         },
         toJSON: function() {
-            var data = Backbone.Model.prototype.toJSON.call(this);
+            // we keep these flat for consistency's sake.
+            var data = {};
+            data[this._model_name] = Backbone.Model.prototype.toJSON.call(this);
             data[this._fk] = Backbone.Model.prototype.toJSON.call(this.get(this._fk));
             return data;
         },
@@ -69,6 +80,7 @@ function Plase () {
             _fk: 'last_play',
             _fk_collection: 'plays',
             _model_name: 'place',
+            url: '/api/plays/place',
             defaults: function() {
                 return {
                     'name': '',
@@ -90,6 +102,7 @@ function Plase () {
             _fk: 'place',
             _fk_collection: 'places',
             _model_name: 'play',
+            url: '/api/plays/play',
             defaults: function() {
                 return {
                     'artist': '',
@@ -134,8 +147,13 @@ function Plase () {
                 this.listenTo(this.model, 'change', this.render);
                 this.listenTo(this.model, 'destroy', this.remove);
             },
-            render: function() {
-                this.$el.html(this.template(this.model.toJSON()));
+            render: function(data) {
+                if (_(data).isUndefined()) data = this.model.toJSON();
+                try {
+                    this.$el.html(this.template(data));
+                } catch (ReferenceError) {
+                    // don't do anything yet - we're missing data
+                }
                 return this;
             }
         }),
@@ -154,47 +172,38 @@ function Plase () {
                 this.$el.html('');
                 this.collection.each(this.appendItem, this);
             },
-            appendItem: function(play) {
-                this.$el.append(play.view.render().el);
+            appendItem: function(place) {
+                this.$el.append(place.view.render().el);
             }
         }),
         PlayReportView: Backbone.View.extend({
             el: $('#add-play'),
             collection: plase.plays,
-            template: _.template($('#play-form-template').html()),
             events: {
-                'submit #add-play': 'finish'
+                'submit': 'submit'
             },
-            finish: function() {
-                this.$el.slideUp('fast');
+            submit: function(e) {
+                e.preventDefault();
+                var raw_play = plase.formToObject(e.target);
+                var play = new this.collection.model(raw_play);
+                // this.collection.add(play);
+                play.save();
+                // this.$el.slideUp('fast');
             }
         }),
         PlaceReportView: Backbone.View.extend({
             el: $('#add-place'),
             collection: plase.places,
-            template: _.template($('#place-form-template').html()),
             events: {
-                'submit #add-place': 'finish'
+                'submit': 'finish'
             },
             finish: function() {
-                this.$el.slideUp('fast');
+                e.preventDefault();
+                raw_place = plase.formToObject(e.target);
+                // this.collection.add(raw_place, {'merge': true});
+                //this.$el.slideUp('fast');
             }
         })
-        /*
-        ReportView: Backbone.View.extend({
-            el: $('#report'),
-            template: _.template($('#report-template').html()),
-            events: {
-                'click #report': 'report',
-                'click #report-submit': 'finish'
-            },
-            report: function() {
-                this.$el.slideDown('fast');
-            },
-            finish: function() {
-                this.$el.slideUp('fast');
-            }
-        })*/
     };
 
     // INITIALISATION
@@ -204,6 +213,9 @@ function Plase () {
         // get initial list
         plase.watch = new plase.views.PlacesListView();
 
+        plase.add_play = new plase.views.PlayReportView();
+        plase.add_place = new plase.views.PlaceReportView();
+
         // open our websocket
         var ws = new WebSocket('ws://localhost:81/poll/');
         ws.onclose = function(){ console.log('WebSocket closed'); };
@@ -211,8 +223,9 @@ function Plase () {
         ws.onmessage = function(e){
             var data = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
             // console.log('message!', data);
-            plase.plays.add(data.play, {'merge': true});
-            plase.places.add(data.place, {'merge': true});
+            plase.plays.add(data.last_play, {'merge': true, 'silent': true});
+            plase.places.add(data.place, {'merge': true, 'silent': true});
+            plase.places.get(data.place.id).view.render(data);
         };
     })();
     return plase;
