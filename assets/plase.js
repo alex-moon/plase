@@ -148,11 +148,13 @@ function Plase () {
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function(data) {
-                if (_(data).isUndefined()) data = this.model.toJSON();
-                try {
+                if (!_(data._model_name).isUndefined()) {
+                    data = this.model.toJSON(data);
+                } try {
                     this.$el.html(this.template(data));
-                } catch (ReferenceError) {
-                    // don't do anything yet - we're missing data
+                } catch (e) {
+                    // defer render until we have missing data
+                    // console.log('missing data for template:', e.message, data);
                 }
                 return this;
             }
@@ -173,7 +175,7 @@ function Plase () {
                 this.collection.each(this.appendItem, this);
             },
             appendItem: function(place) {
-                this.$el.append(place.view.render().el);
+                this.$el.append(place.view.render(place).el);
             }
         }),
         PlayReportView: Backbone.View.extend({
@@ -186,7 +188,6 @@ function Plase () {
                 e.preventDefault();
                 var raw_play = plase.formToObject(e.target);
                 var play = new this.collection.model(raw_play);
-                // this.collection.add(play);
                 play.save();
                 // this.$el.slideUp('fast');
             }
@@ -195,12 +196,23 @@ function Plase () {
             el: $('#add-place'),
             collection: plase.places,
             events: {
-                'submit': 'finish'
+                'submit': 'submit'
             },
-            finish: function() {
+            initialize: function() {
+                this.listenTo(this.collection, 'reset', function(){
+                    this.$('#id_name').autocomplete({
+                        collection: this.collection,
+                        attr: 'name',
+                        noCase: true
+                    });
+                    console.log('autocomplete for element', this.collection.at(0).get('name'));
+                });
+            },
+            submit: function(e) {
                 e.preventDefault();
-                raw_place = plase.formToObject(e.target);
-                // this.collection.add(raw_place, {'merge': true});
+                var raw_place = plase.formToObject(e.target);
+                var place = new this.collection.model(raw_place);
+                place.save();
                 //this.$el.slideUp('fast');
             }
         })
@@ -215,6 +227,7 @@ function Plase () {
 
         plase.add_play = new plase.views.PlayReportView();
         plase.add_place = new plase.views.PlaceReportView();
+        plase.add_play.$el.submit(function(){plase.add_place.$el.submit();}); // probably a nicer way to do this...
 
         // open our websocket
         var ws = new WebSocket('ws://localhost:81/poll/');
