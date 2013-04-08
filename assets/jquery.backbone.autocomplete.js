@@ -178,7 +178,7 @@
 			var result = [];
 			collection.each(function(model) {
 				var v = model.get(attr);
-				if (v.indexOf(str) == 0 || (options.noCase && v.toLowerCase().indexOf(str_lower) == 0))
+				if (v.indexOf(str) != -1 || (options.noCase && v.toLowerCase().indexOf(str_lower) != -1))
 					result.push(model);
 			});
 			
@@ -211,7 +211,13 @@
 			for (var i = 0; i < result.length; i++) {
 				var model = result[i];
 				var found = model.get(attr);
-				var html = '<strong>'+found.substr(0, str.length)+'</strong>'+found.substr(str.length);
+				var hl_index = found.indexOf(str)
+				if (options.noCase) {
+					hl_index = found.toLowerCase().indexOf(str_lower);
+				}
+				var html = found.substr(0, hl_index) +
+				           '<strong>' + found.substr(hl_index, str.length) + '</strong>' +
+				           found.substr(hl_index + str.length, found.length);
 				var li_em = $("<li>"+html+"</li>");
 				li_em.mouseover(function() {
 					$(this).addClass('selected')

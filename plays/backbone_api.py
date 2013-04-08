@@ -1,5 +1,3 @@
-from django.db.models.aggregates import Max
-from django.db.models import F
 from django.contrib.gis.geos import fromstr
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -12,6 +10,7 @@ import backbone
 
 from base64 import b64decode
 import pika
+import json
 
 
 class PlaceView(BackboneAPIView):
@@ -20,9 +19,13 @@ class PlaceView(BackboneAPIView):
     display_fields = ('id', 'name', 'listening_to', 'public')
 
     def queryset(self, request):
-        return self.model.objects.filter(pk__in=[x.place.pk for x in PlayView().queryset(request)])
+        here = fromstr(b64decode(request.META['HTTP_WHERE']))
+        return self.model.objects.filter(pk__in=[x.place.pk for x in Play.objects.last_by_distance(here)])
 
     def has_add_permission(self, request):
+        return True
+
+    def has_update_permission(self, request, obj):
         return True
 
     def get_form_instance(self, request, data=None, instance=None):
@@ -30,6 +33,21 @@ class PlaceView(BackboneAPIView):
         here = fromstr(b64decode(request.META['HTTP_WHERE']))
         data['location'] = here
         return super(PlaceView, self).get_form_instance(request, data, instance)
+
+    def get_object_detail(self, request, obj):
+        data = json.loads(request.raw_post_data)
+        try:
+            import ipdb; ipdb.set_trace()
+            data = data['last_play']
+            data['place'] = obj
+            here = fromstr(b64decode(request.META['HTTP_WHERE']))
+            data['location'] = here
+            play = Play(**data)
+            play.save()
+        except:
+            pass
+
+        return super(PlaceView, self).get_object_detail(request, obj)
 
     def serialize(self, obj, fields):
         place = super(PlaceView, self).serialize(obj, fields)
@@ -49,7 +67,7 @@ class PlaceView(BackboneAPIView):
 
             data['last_play'] = play_dict
             data['place']['last_play'] = play_dict['id']
-        except KeyError:
+        except IndexError:
             pass
 
         return data
@@ -62,10 +80,7 @@ class PlayView(BackboneAPIView):
 
     def queryset(self, request):
         here = fromstr(b64decode(request.META['HTTP_WHERE']))
-        return self.model.objects.filter(nothing=False)\
-                                 .annotate(max_started=Max('place__play__started'))\
-                                 .filter(started=F('max_started')).distance(here)\
-                                 .order_by('distance')
+        return self.model.objects.last_by_distance(here).filter(nothing=False)
 
     def has_add_permission(self, request):
         return True
@@ -101,6 +116,17 @@ class PlayView(BackboneAPIView):
 def on_play_save(sender, instance=False, created=False, **kwargs):
     view = PlayView()
     data = view.serialize(instance, PlayView.display_fields)
+    # print "sending over the wire: %s" % data
+    connect = pika.BlockingConnection()
+    channel = connect.channel()
+    channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
+    connect.close()
+
+
+@receiver(post_save, sender=Place)
+def on_place_save(sender, instance=False, created=False, **kwargs):
+    view = PlaceView()
+    data = view.serialize(instance, PlaceView.display_fields)
     # print "sending over the wire: %s" % data
     connect = pika.BlockingConnection()
     channel = connect.channel()

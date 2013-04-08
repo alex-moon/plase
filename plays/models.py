@@ -1,6 +1,7 @@
 from django.contrib.gis.db import models
-from django.contrib.auth.models import User
 from django.contrib.gis.db.models import PointField, GeoManager
+from django.db.models.aggregates import Max
+from django.db.models import F
 
 
 class Place(models.Model):
@@ -14,6 +15,13 @@ class Place(models.Model):
         return self.name
 
 
+class PlayManager(GeoManager):
+    def last_by_distance(self, here):
+        return self.all().annotate(max_started=Max('place__play__started'))\
+                         .filter(started=F('max_started')).distance(here)\
+                         .order_by('distance')
+
+
 # NB: see backbone_api module for post_save receiver
 class Play(models.Model):
     place = models.ForeignKey(Place)
@@ -23,7 +31,7 @@ class Play(models.Model):
     started = models.DateTimeField(auto_now_add=True)
     nothing = models.BooleanField()
 
-    objects = GeoManager()
+    objects = PlayManager()
 
     def __unicode__(self):
         when = self.started.strftime("%H:%M")  # @todo better datetime representation

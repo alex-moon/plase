@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <!-- script>
-// @todo - we need to handle the autocomplete here also
 document.write('<script src=' +
 ('__proto__' in {} ? 'zepto' : 'jquery') +
 '.js><\/script>')
@@ -35,6 +34,7 @@ document.write('<script src=' +
                     {% csrf_token %}
                     <h2>Where are you?</h2>
                     <div id="place-details">
+                        <input type="hidden" name="id" id="id_id" />
                         <div class="no-label-input">{{ place_form.name }}</div>
                         <h2>Tell us about it</h2>
                         <div class="input">{{ place_form.summary }}</div>
