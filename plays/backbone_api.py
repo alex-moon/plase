@@ -70,7 +70,7 @@ class PlayView(BackboneAPIView):
 def on_play_save(sender, instance=False, created=False, **kwargs):
     view = PlayView()
     data = {'play': view.serialize(instance, PlayView.display_fields)}
-    print "sending play over the wire: %s" % data
+    # print "sending play over the wire: %s" % data
     connect = pika.BlockingConnection()
     channel = connect.channel()
     channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
@@ -81,7 +81,7 @@ def on_play_save(sender, instance=False, created=False, **kwargs):
 def on_place_save(sender, instance=False, created=False, **kwargs):
     view = PlaceView()
     data = {'place': view.serialize(instance, PlaceView.display_fields)}
-    print "sending place over the wire: %s" % data
+    # print "sending place over the wire: %s" % data
     connect = pika.BlockingConnection()
     channel = connect.channel()
     channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))

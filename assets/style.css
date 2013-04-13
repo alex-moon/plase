@@ -82,6 +82,7 @@ div#report a#show-report {
     width: 100%;
     padding: 1em 0;
     font-size: 120%;
+    cursor: pointer;
 }
 
 ul#watch li p {

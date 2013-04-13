@@ -88,7 +88,7 @@ function Plase () {
                     var plays = plase.plays.where({place: this.get('id')});
                     this.set('last_play', _(plays).last());
                 } catch (e) {
-                    console.log('missing last_play:', e);
+                    // console.log('missing last_play:', e);
                 }
             },
             distance: function(place) {
@@ -114,7 +114,7 @@ function Plase () {
                 try {
                     var place = plase.places.get(this.get('place'));
                 } catch (e) {
-                    console.log('missing place:', e);
+                    // console.log('missing place:', e);
                 }
             },
             distance: function(play) {
@@ -153,12 +153,17 @@ function Plase () {
                 this.listenTo(this.model, 'destroy', this.remove);
             },
             render: function(place) {
-                console.log('place', place, 'last_play', place.get('last_play'));
-                try {
-                    this.$el.html(this.template({'place': place.toJSON(), 'last_play': place.get('last_play').toJSON()}));
-                } catch (e) {
-                    // defer render until we have missing data
-                    console.log('missing data for template:', e.message, place);
+                $last_play = _(place.get('last_play'));
+                if ($last_play.isUndefined() || $last_play.isNumber() || $last_play.value().get('nothing')) {
+                    this.$el.hide();
+                } else {
+                    try {
+                        this.$el.html(this.template({'place': place.toJSON(), 'last_play': place.get('last_play').toJSON()}));
+                        this.$el.show();
+                    } catch (e) {
+                        // defer render until we have missing data
+                        // console.log('missing data for template:', e.message, place);
+                    }
                 }
                 return this;
             }
@@ -210,6 +215,24 @@ function Plase () {
                         }
                     });
                 });
+
+                // bind click methods
+                $el = this.$el;
+                $el.find('#nothing-button').click(function(e){
+                    $this = $(e.target);
+                    if ($this.hasClass('on')) {
+                        $this.siblings('#id_nothing').val('');
+                        $this.removeClass('on');
+                        $this.closest('form').find('#something').slideDown('fast');
+                    } else {
+                        $this.siblings('#id_nothing').val(true);
+                        $this.addClass('on');
+                        $this.closest('form').find('#something').slideUp('fast');
+                    }
+                });
+                $('#show-report').click(function(e){
+                    $el.slideToggle('fast');
+                });
             },
             submit: function(e) {
                 e.preventDefault();
@@ -224,6 +247,14 @@ function Plase () {
                 var play = new plase.plays.model();
                 play.save(raw_play);
                 this.$el.slideUp('fast');
+
+                // finally reset forms (except last added ID)
+                this.$('#something').slideDown('fast');
+                this.$('#nothing-button').removeClass('on');
+                this.$('#id_nothing').val('');
+                this.$('#add-place, #add-play').each(function(i,form){
+                    form.reset();
+                });
 
                 return false;
             },
@@ -278,7 +309,7 @@ function Plase () {
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
             var data = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
-            console.log('message!', data);
+            // console.log('message!', data);
             if (_(data).has('play')) {
                 plase.plays.add(data.play, {'merge': true});
                 plase.places.get(data.play.place).set('last_play', data.play.id);
