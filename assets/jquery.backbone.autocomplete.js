@@ -123,7 +123,7 @@
                 var list_em = $('<ul>') // UL
                     .addClass(options.ul_class || defaults.ul_class)
                     .hide()
-                    .insertBefore($this);
+                    .insertAfter($this);
                 
                 // Bind events
                 $this.bind('focus.autocomplete', function(e) {
