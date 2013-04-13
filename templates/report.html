@@ -1,63 +1,33 @@
-{% extends 'base.html' %}
-
-{% block head %}<script type="text/javascript" src="{{ STATIC_URL }}report.js"></script>{% endblock %}
-{% block pagetitle %}What's playing right now near you?{% endblock %}
-{% block bodyClass %}report{% endblock %}
-
-{% block content %}
-<div id="reportWrapper">
-
-<p id="location-warning" class="error">
-This app uses your current location to place what's playing on the globe.
-Please enable geolocation before telling us what's playing.
-</p>
-
-<!--ul class="error">{{ form.errors }}</ul>
-<ul class="error">{{ place_form.errors }}</ul-->
-
-<form id="report" method="post">
-{% csrf_token %}
-{{ form.location }}
-{% if form.errors or place_form.errors %}
-<p class="error">Did you miss something? Don't be shy about filling out the highlighted fields.</p>
-{% endif %}
-
-
-<h2>Where are you?</h2>
-<div id="place-details">
-{{ form.place }}
-
-{% if place_form %}
-
-<div class="no-label-input{% if place_form.name.errors %} error{% endif %}">{{ place_form.name }}</div>
-<h2>Tell us about it</h2>
-<div class="input">{{ place_form.summary }}</div>
-<div class="select">{{ place_form.listening_to.label_tag }}{{ place_form.listening_to }}</div>
-<div class="select">{{ place_form.public.label_tag }}{{ place_form.public }}</div>
-
-{% else %}
-
-<div class="search-or-add-input{% if form.place.errors %} error{% endif %}">
-<div class="box">
-<a id="add-a-place" class="add" href="javascript:void(0)" onclick="report.addPlace()" title="Add a place">&nbsp;</a>
-<input class="search" type="text" name="place_name" id="place-name" value="{{ request.POST.place_name }}" />
-</div><!-- box -->
-</div><!-- search-or-add-input -->
-
-{% endif %}
-</div><!-- place-details -->
-
-
-<h2>What's playing there?</h2>
-<div id="nothing">
-{{ form.nothing }}
-<input type="button" value="Nothing" onclick="report.toggleNothing()" id="nothing-button"{% if form.nothing.value %} class="on"{% endif %} />
-</div><!-- nothing -->
-<div id="something"{% if form.nothing.value %} style="display: none"{% endif %}>
-<div class="input{% if form.artist.errors %} error{% endif %}">{{ form.artist.label_tag }}{{ form.artist }}</div>
-<div class="input{% if form.title.errors %} error{% endif %}">{{ form.title.label_tag }}{{ form.title }}</div>
-</div><!-- something -->
-<div class="submit"><input type="submit" value="That's it!" /></div>
-</form>
-</div>
-{% endblock %}
+            <div id="report-forms">
+                <p class="error" style="display: none">Did you miss something? Don't be shy about filling out the highlighted fields.</p>
+                <form id="add-place" onsubmit="return false">
+                    {% csrf_token %}
+                    <h2>Where are you?</h2>
+                    <div id="place-details">
+                        <input type="hidden" name="id" id="id_id" data-last-added="" />
+                        <div class="no-label-input">{{ place_form.name }}</div>
+                        <div class="button-input" id="add-place-control">
+                        	<input type="button" value="Add Place" id="add-place-button" />
+                        </div>
+                        <h2>Tell us about it</h2>
+                        <div class="input">{{ place_form.summary }}</div>
+                        <div class="select">{{ place_form.listening_to.label_tag }}{{ place_form.listening_to }}</div>
+                        <div class="select">{{ place_form.public.label_tag }}{{ place_form.public }}</div>
+                    </div><!-- place-details -->
+                </form>
+                <form id="add-play">
+                    {% csrf_token %}
+                    <h2>What's playing there?</h2>
+                    {{ play_form.place }}
+                    <div class="button-input" id="nothing">
+                        {{ play_form.nothing }}
+                        <input type="button" value="Nothing" id="nothing-button" />
+                    </div><!-- nothing -->
+                    <div id="something">
+                        <div class="input">{{ play_form.artist.label_tag }}{{ play_form.artist }}</div>
+                        <div class="input">{{ play_form.title.label_tag }}{{ play_form.title }}</div>
+                    </div><!-- something -->
+                    <div class="submit"><input type="submit" value="That's it!" /></div>
+                </form>
+            </div> 
+        </div>

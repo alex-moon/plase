@@ -208,15 +208,21 @@ div#report textarea {
     font-family: sans-serif;
 }
 
-div#report #nothing {
-    text-align: center;
+div#report .button-input {
+    clear: left;
 }
 
-div#report #nothing-button {
-    padding: 1em 3em;
+div#report .button-input input {
+    padding: 1em;
+    width: 20.6em;
 }
 
-div#report #nothing-button.on {
+div#report .button-input input:disabled {
+    border: none;
+    font-style: italic;
+}
+
+div#report .button-input input.on {
     border: solid 1px #464;
     background-image: -webkit-linear-gradient(top, #7ae069 0%, #c6ffb6 60%, #feffd3 100%);
     border-radius: 2px;
@@ -237,6 +243,13 @@ div#report #tell-us {
     display: none;
 }
 
+div#report #id_name {
+    color: #999;
+}
+
+div#report #id_name.set {
+    color: #000;
+}
 
 
 ul.errorlist {

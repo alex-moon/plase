@@ -28,49 +28,15 @@ class PlaceView(BackboneAPIView):
     def has_update_permission(self, request, obj):
         return True
 
-    def get_form_instance(self, request, data=None, instance=None):
-        data = data['place']
-        here = fromstr(b64decode(request.META['HTTP_WHERE']))
-        data['location'] = here
-        return super(PlaceView, self).get_form_instance(request, data, instance)
-
     def get_object_detail(self, request, obj):
-        data = json.loads(request.raw_post_data)
-        try:
-            import ipdb; ipdb.set_trace()
-            data = data['last_play']
-            data['place'] = obj
+        response = super(PlaceView, self).get_object_detail(request, obj)
+
+        if obj.play_set.count() == 0:
             here = fromstr(b64decode(request.META['HTTP_WHERE']))
-            data['location'] = here
-            play = Play(**data)
+            play = Play(place=obj, nothing=True, location=here)
             play.save()
-        except:
-            pass
 
-        return super(PlaceView, self).get_object_detail(request, obj)
-
-    def serialize(self, obj, fields):
-        place = super(PlaceView, self).serialize(obj, fields)
-
-        data = {'place': place}
-        try:
-            last_play = obj.play_set.all().order_by('-started')[0]
-            play_dict = last_play.__dict__
-
-            play_dict['latitude'] = last_play.location.get_y()
-            play_dict['longitude'] = last_play.location.get_x()
-            play_dict['place'] = play_dict['place_id']
-
-            del play_dict['_state']
-            del play_dict['location']
-            del play_dict['place_id']
-
-            data['last_play'] = play_dict
-            data['place']['last_play'] = play_dict['id']
-        except IndexError:
-            pass
-
-        return data
+        return response
 
 
 class PlayView(BackboneAPIView):
@@ -86,7 +52,7 @@ class PlayView(BackboneAPIView):
         return True
 
     def get_form_instance(self, request, data=None, instance=None):
-        data = data['play']
+        # data = data['play']
         here = fromstr(b64decode(request.META['HTTP_WHERE']))
         data['location'] = here
         return super(PlayView, self).get_form_instance(request, data, instance)
@@ -96,27 +62,15 @@ class PlayView(BackboneAPIView):
         play['latitude'] = obj.location.get_y()
         play['longitude'] = obj.location.get_x()
 
-        # clean place and location a little for serialization
-        place = obj.place.__dict__
-        try:
-            del place['_state']
-        except KeyError:
-            pass
-
-        # set foreign keys
-        play['place'] = place['id']
-        place['last_play'] = play['id']
-
-        data = {'last_play': play, 'place': place}
-
-        return data
+        play['place'] = obj.place.pk
+        return play
 
 
 @receiver(post_save, sender=Play)
 def on_play_save(sender, instance=False, created=False, **kwargs):
     view = PlayView()
-    data = view.serialize(instance, PlayView.display_fields)
-    # print "sending over the wire: %s" % data
+    data = {'play': view.serialize(instance, PlayView.display_fields)}
+    print "sending play over the wire: %s" % data
     connect = pika.BlockingConnection()
     channel = connect.channel()
     channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
@@ -126,8 +80,8 @@ def on_play_save(sender, instance=False, created=False, **kwargs):
 @receiver(post_save, sender=Place)
 def on_place_save(sender, instance=False, created=False, **kwargs):
     view = PlaceView()
-    data = view.serialize(instance, PlaceView.display_fields)
-    # print "sending over the wire: %s" % data
+    data = {'place': view.serialize(instance, PlaceView.display_fields)}
+    print "sending place over the wire: %s" % data
     connect = pika.BlockingConnection()
     channel = connect.channel()
     channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
