@@ -1,0 +1,41 @@
+application: plase
+version: 2
+runtime: python27
+api_version: 1
+threadsafe: true
+
+builtins:
+- deferred: on
+
+libraries:
+- name: django
+  version: "1.5"
+
+inbound_services:
+- warmup
+
+handlers:
+
+- url: /static
+  static_dir: _static
+  expiration: '1m'
+
+- url: /favicon.ico
+  static_files: favicon.ico
+  upload: favicon.ico
+
+- url: /appengine_sessions/clean-up/
+  script: main.app
+  login: admin
+
+- url: /.*
+  script: main.app
+
+skip_files:
+- ^(.*/)?app.yaml
+- ^(.*/)?app.yml
+- ^(.*/)?index.yaml
+- ^(.*/)?index.yml
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?\..*
+- tmp

@@ -1,7 +1,8 @@
-from django.contrib.gis.db import models
-from django.contrib.gis.db.models import PointField, GeoManager
-from django.db.models.aggregates import Max
-from django.db.models import F
+# from django.contrib.gis.db import models
+# from django.contrib.gis.db.models import PointField, GeoManager
+#from django.db.models.aggregates import Max
+#from django.db.models import F
+from django.db import models
 
 
 class Place(models.Model):
@@ -9,17 +10,17 @@ class Place(models.Model):
     listening_to = models.CharField(max_length=10, blank=True)
     public = models.CharField(max_length=3, blank=True)
 
-    objects = GeoManager()
+    # objects = GeoManager()
 
     def __unicode__(self):
         return self.name
 
 
-class PlayManager(GeoManager):
-    def last_by_distance(self, here):
-        return self.all().annotate(max_started=Max('place__play__started'))\
-                         .filter(started=F('max_started')).distance(here)\
-                         .order_by('distance')
+#class PlayManager(GeoManager):
+#    def last_by_distance(self, here):
+#        return self.all().annotate(max_started=Max('place__play__started'))\
+#                         .filter(started=F('max_started')).distance(here)\
+#                         .order_by('distance')
 
 
 # NB: see backbone_api module for post_save receiver
@@ -27,11 +28,11 @@ class Play(models.Model):
     place = models.ForeignKey(Place)
     artist = models.CharField(max_length=80, blank=True)
     title = models.CharField(max_length=100, blank=True)
-    location = PointField()
+    # location = PointField()
     started = models.DateTimeField(auto_now_add=True)
     nothing = models.BooleanField()
 
-    objects = PlayManager()
+    # objects = PlayManager()
 
     def __unicode__(self):
         when = self.started.strftime("%H:%M")  # @todo better datetime representation

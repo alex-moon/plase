@@ -1,0 +1,5 @@
+cron:
+- description: Cron to clean up sessions
+  url: /appengine_sessions/clean-up/
+  schedule: every 24 hours
+  

@@ -1,6 +1,15 @@
 # Django settings for plase project.
 
-DEBUG = True
+import os
+import sys
+
+APPENGINE_PRODUCTION = os.getenv('APPENGINE_PRODUCTION')
+
+HTTP_HOST = os.environ.get('HTTP_HOST')
+
+PROJDIR = os.path.abspath(os.path.dirname(__file__))
+
+DEBUG = not APPENGINE_PRODUCTION
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -9,17 +18,46 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = {
+# A custom cache backend using AppEngine's memcached
+CACHES = {
     'default': {
-        #'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'ENGINE':  'django.contrib.gis.db.backends.postgis',
-        'NAME': 'plase',
-        'USER': 'plase',
-        'PASSWORD': 'plase',
-        'HOST': 'localhost',
-        'PORT': '',
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'TIMEOUT': 0,
     }
 }
+
+# If you are using CloudSQL, you can comment out the next line
+TEST_RUNNER = 'lib.testrunnernodb.TestRunnerNoDb'
+
+SESSION_ENGINE = "appengine_sessions.backends.cached_db"
+
+# Uncomment these DB definitions to use Cloud SQL.
+# See: https://developers.google.com/cloud-sql/docs/django#development-settings
+#import os
+#if (os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine') or
+#    os.getenv('SETTINGS_MODE') == 'prod'):
+#    # Running on production App Engine, so use a Google Cloud SQL database.
+#    DATABASES = {
+#        'default': {
+#            'ENGINE': 'google.appengine.ext.django.backends.rdbms',
+#            'INSTANCE': 'my_project:instance1',
+#            'NAME': 'my_db',
+#            }
+#        }
+#else:
+#    # Running in development, so use a local MySQL database.
+#    DATABASES = {
+#         'default': {
+#             #'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#             'ENGINE':  'django.contrib.gis.db.backends.postgis',
+#             'NAME': 'plase',
+#             'USER': 'plase',
+#             'PASSWORD': 'plase',
+#             'HOST': 'localhost',
+#             'PORT': '',
+#         }
+#    }
+
 
 TIME_ZONE = 'Europe/London'
 LANGUAGE_CODE = 'en-uk'
@@ -84,9 +122,10 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.gis',
-    'django_extensions',
+    # 'django_extensions',
     'backbone',
     'plays',
+    'appengine_sessions',
 )
 
 # A sample logging configuration. The only tangible logging

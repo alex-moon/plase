@@ -1,11 +1,11 @@
 from django import forms
 from plays.models import Place, Play
-from django.contrib.gis.forms.fields import GeometryField
+# from django.contrib.gis.forms.fields import GeometryField
 
 
 class PlayForm(forms.ModelForm):
     place = forms.ModelChoiceField(queryset=Place.objects.all(), widget=forms.HiddenInput)
-    location = GeometryField(widget=forms.HiddenInput)
+    # location = GeometryField(widget=forms.HiddenInput)
     nothing = forms.BooleanField(widget=forms.HiddenInput)
 
     def clean(self):
