@@ -1,12 +1,16 @@
 from django import forms
+from google.appengine.ext.db import djangoforms
 from plays.models import Place, Play
 # from django.contrib.gis.forms.fields import GeometryField
 
 
-class PlayForm(forms.ModelForm):
-    place = forms.ModelChoiceField(queryset=Place.objects.all(), widget=forms.HiddenInput)
-    # location = GeometryField(widget=forms.HiddenInput)
-    nothing = forms.BooleanField(widget=forms.HiddenInput)
+class PlayForm(djangoforms.ModelForm):
+    class Meta:
+        widgets = {
+            'place': forms.HiddenInput,
+            'nothing': forms.HiddenInput,
+            # 'location': forms.HiddenInput,
+        }
 
     def clean(self):
         cleaned_data = super(PlayForm, self).clean()
@@ -36,8 +40,7 @@ class PlayForm(forms.ModelForm):
         model = Play
 
 
-class PlaceForm(forms.ModelForm):
-    # todo: following violates DRY
+class PlaceForm(djangoforms.ModelForm):
     listening_to = forms.ChoiceField(label='You are listening to a', choices=(
         ('', '--------'),
         ('band', 'Band/Solo Musician'),
