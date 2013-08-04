@@ -20,8 +20,8 @@ class BackboneSite(object):
 
         urlpatterns = patterns('')
         for view_class in self._registry:
-            app_label = view_class.model._meta.app_label
-            module_name = view_class.model._meta.module_name
+            app_label = view_class.model.__module__.split('.')[0]
+            module_name = view_class.model.__name__.lower()
 
             url_path_prefix = r'^%s/%s' % (app_label, module_name)
             base_url_name = '%s_%s' % (app_label, module_name)

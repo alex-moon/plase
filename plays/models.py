@@ -1,5 +1,6 @@
 from google.appengine.ext import db
-from django.
+# from django.db import models
+
 
 class Place(db.Model):
     name = db.StringProperty()

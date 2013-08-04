@@ -6,11 +6,7 @@ from plays.models import Place, Play
 
 class PlayForm(djangoforms.ModelForm):
     class Meta:
-        widgets = {
-            'place': forms.HiddenInput,
-            'nothing': forms.HiddenInput,
-            # 'location': forms.HiddenInput,
-        }
+        model = Play
 
     def clean(self):
         cleaned_data = super(PlayForm, self).clean()
@@ -25,7 +21,6 @@ class PlayForm(djangoforms.ModelForm):
             cleaned_data["nothing"] = True  # normalise for consistency's sake
 
         else:
-            del self._errors["nothing"]  # 'False' != False (shakes fist at HiddenInput)
             cleaned_data["nothing"] = False
 
             msg = u"This field is required"
@@ -35,9 +30,6 @@ class PlayForm(djangoforms.ModelForm):
                 self._errors["title"] = self.error_class([msg])
 
         return cleaned_data
-
-    class Meta:
-        model = Play
 
 
 class PlaceForm(djangoforms.ModelForm):

@@ -3,8 +3,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.forms.models import modelform_factory
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, Http404
 from django.utils import simplejson
 from django.utils.translation import ugettext as _
 from django.views.generic import View
@@ -22,7 +21,7 @@ class BackboneAPIView(View):
         """
         Returns the queryset (along with ordering) to be used when retrieving object(s).
         """
-        qs = self.model._default_manager.all()
+        qs = self.model.all()
         if self.ordering:
             qs = qs.order_by(*self.ordering)
         return qs
@@ -32,7 +31,9 @@ class BackboneAPIView(View):
         Handles get requests for either the collection or an object detail.
         """
         if id:
-            obj = get_object_or_404(self.queryset(request, **kwargs), id=id)
+            obj = self.model.get_by_id(long(id))
+            if not obj:
+                raise Http404
             return self.get_object_detail(request, obj)
         else:
             return self.get_collection(request, **kwargs)
@@ -100,9 +101,9 @@ class BackboneAPIView(View):
             # We return the newly created object's details and a Location header with it's url
             response = self.get_object_detail(request, obj)
             response.status_code = 201
-
-            url_name = 'backbone:%s_%s_detail' % (self.model._meta.app_label, self.model._meta.module_name)
-            response['Location'] = reverse(url_name, args=[obj.id])
+ 
+            #url_name = 'backbone:%s_%s_detail' % (self.model._meta.app_label, self.model._meta.module_name)
+            #response['Location'] = reverse(url_name, args=[obj.id])
             return response
         else:
             return HttpResponseBadRequest(self.json_dumps(form.errors), mimetype='application/json')
@@ -112,7 +113,9 @@ class BackboneAPIView(View):
         Handles put requests.
         """
         if id:
-            obj = get_object_or_404(self.queryset(request), id=id)
+            obj = self.model.get_by_id(long(id))
+            if not obj:
+                raise Http404
             if not self.has_update_permission(request, obj):
                 return HttpResponseForbidden(_('You do not have permission to perform this action.'))
             else:
@@ -228,18 +231,22 @@ class BackboneAPIView(View):
         """
         Serializes a single model instance to a Python object, based on the specified list of fields.
         """
-        # Making use of Django's Python serializer (it expects a list, not a single instance)
-        data = serializers.serialize('python', [obj], fields=fields)[0]['fields']
+        data = obj.__dict__['_entity']  # @todo: obj.properties()?
+        for key in data.keys():
+            if key not in fields:
+                del data[key]
 
         # For any fields that are not actual db fields (perhaps a property), we will manually add it
-        # Also, 'id' is not included as a field by the serializer, so this will handle it
         non_db_fields = set(fields) - set(data.keys())
         for field in non_db_fields:
-            attr = getattr(obj, field)
-            if callable(attr):
-                data[field] = attr()
+            if field == 'id':
+                data[field] = obj.key().id()
             else:
-                data[field] = attr
+                attr = getattr(obj, field)
+                if callable(attr):
+                    data[field] = attr()
+                else:
+                    data[field] = attr
         return data
 
     def json_dumps(self, data, **options):

@@ -21,7 +21,7 @@ class PlaceView(BackboneAPIView):
     def queryset(self, request):
         #here = fromstr(b64decode(request.META['HTTP_WHERE']))
         #return self.model.objects.filter(pk__in=[x.place.pk for x in Play.objects.last_by_distance(here)])
-        return self.model.objects.all()
+        return self.model.all()
 
     def has_add_permission(self, request):
         return True
@@ -48,7 +48,7 @@ class PlayView(BackboneAPIView):
     def queryset(self, request):
         #here = fromstr(b64decode(request.META['HTTP_WHERE']))
         #return self.model.objects.last_by_distance(here).filter(nothing=False)
-        return self.model.objects.all()
+        return self.model.all()
 
     def has_add_permission(self, request):
         return True
@@ -63,7 +63,10 @@ class PlayView(BackboneAPIView):
         #play['latitude'] = obj.location.get_y()
         #play['longitude'] = obj.location.get_x()
 
-        play['place'] = obj.place.pk
+        try:
+            play['place'] = obj.place.key().id()
+        except:
+            play['place'] = obj.place
         return play
 
 
