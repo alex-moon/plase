@@ -2,7 +2,7 @@ application: plase-gae
 version: 2
 runtime: python27
 api_version: 1
-threadsafe: true
+threadsafe: false
 
 builtins:
 - deferred: on
@@ -29,7 +29,7 @@ handlers:
   login: admin
 
 - url: /.*
-  script: main.app
+  script: main.py
 
 skip_files:
 - ^(.*/)?app.yaml
