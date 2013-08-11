@@ -88,7 +88,7 @@ function Plase () {
                     var plays = plase.plays.where({place: this.get('id')});
                     this.set('last_play', _(plays).last());
                 } catch (e) {
-                    // console.log('missing last_play:', e);
+                    // console.log('missing last_play for ', this, e);
                 }
             },
             distance: function(place) {
@@ -113,8 +113,9 @@ function Plase () {
             initialize: function() {
                 try {
                     var place = plase.places.get(this.get('place'));
+                    place.set('last_play', this);
                 } catch (e) {
-                    // console.log('missing place:', e);
+                    console.log('missing place for ', this, e);
                 }
             },
             distance: function(play) {
@@ -154,6 +155,7 @@ function Plase () {
             },
             render: function(place) {
                 $last_play = _(place.get('last_play'));
+                console.log('render called for ', place, ' with last play', $last_play);
                 if ($last_play.isUndefined() || $last_play.isNumber() || $last_play.value().get('nothing')) {
                     this.$el.hide();
                 } else {
@@ -210,6 +212,7 @@ function Plase () {
                             $place.find('#id_public').val(model.get('public'));
 
                             $play.find('#id_place').val(model.get('id'));
+                            console.log('Trying to set place id for play form: ', model.get('id'), model);
 
                             $place.find('#add-place-button').hide();
                         }
@@ -304,13 +307,14 @@ function Plase () {
         plase.report_view = new plase.views.ReportView();
 
         // open our websocket
-        var ws = new WebSocket('ws://localhost:81/poll/');
+        channel = new goog.appengine.Channel(window.channel_token);
+        ws = channel.open();
         ws.onclose = function(){ console.log('WebSocket closed'); };
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
-            var data = $.parseJSON($.parseJSON(e.data));  // @todo: parse twice?? No fucking way.
-            // console.log('message!', data);
-            if (_(data).has('play')) {
+            var data = $.parseJSON(e.data);
+            console.log('message!', e.data);
+            if (_(data).has('last_play')) {
                 plase.plays.add(data.play, {'merge': true});
                 plase.places.get(data.play.place).set('last_play', data.play.id);
             } else if (_(data).has('place')) {

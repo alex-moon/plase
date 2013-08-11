@@ -1,6 +1,10 @@
 from google.appengine.ext import db
 # from django.db import models
 
+# keep track of channels via db
+class ChannelRecord(db.Model):
+    token = db.StringProperty()
+
 
 class Place(db.Model):
     name = db.StringProperty()

@@ -18,7 +18,7 @@
                 <form id="add-play">
                     {% csrf_token %}
                     <h2>What's playing there?</h2>
-                    <input type="hidden" value="{{ play_form.place.value }}" />
+                    <input type="hidden" name="place" id="id_place" value="{{ play_form.place.value }}" />
                     <div class="button-input" id="nothing">
                         <input type="hidden" value="{{ play_form.nothing.value }}" />
                         <input type="button" value="Nothing" id="nothing-button" />

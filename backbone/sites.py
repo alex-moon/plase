@@ -28,7 +28,7 @@ class BackboneSite(object):
 
             urlpatterns += patterns('',
                 url(url_path_prefix + '$', view_class.as_view(), name=base_url_name),
-                url(url_path_prefix + '/(?P<id>\d+)$', view_class.as_view(),
+                url(url_path_prefix + '/(?P<id>[^/]+)$', view_class.as_view(),
                     name=base_url_name + '_detail')
             )
         return urlpatterns

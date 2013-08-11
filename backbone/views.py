@@ -31,7 +31,7 @@ class BackboneAPIView(View):
         Handles get requests for either the collection or an object detail.
         """
         if id:
-            obj = self.model.get_by_id(long(id))
+            obj = self.model.get(id)
             if not obj:
                 raise Http404
             return self.get_object_detail(request, obj)
@@ -113,7 +113,7 @@ class BackboneAPIView(View):
         Handles put requests.
         """
         if id:
-            obj = self.model.get_by_id(long(id))
+            obj = self.model.get(id)
             if not obj:
                 raise Http404
             if not self.has_update_permission(request, obj):
@@ -240,7 +240,7 @@ class BackboneAPIView(View):
         non_db_fields = set(fields) - set(data.keys())
         for field in non_db_fields:
             if field == 'id':
-                data[field] = obj.key().id()
+                data[field] = str(obj.key())
             else:
                 attr = getattr(obj, field)
                 if callable(attr):

@@ -2,15 +2,13 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from plays.models import Play, Place
+from google.appengine.api import channel
+
+from plays.models import Play, Place, ChannelRecord
 from plays.forms import PlayForm, PlaceForm
 
 from backbone.views import BackboneAPIView
 import backbone
-
-from base64 import b64decode
-# import pika
-import json
 
 
 class PlaceView(BackboneAPIView):
@@ -39,6 +37,11 @@ class PlaceView(BackboneAPIView):
 
         return response
 
+    def get_form_instance(self, request, data=None, instance=None):
+        place_form = super(PlaceView, self).get_form_instance(request, data, instance)
+        place_form.post_save = on_place_save
+        return place_form
+
 
 class PlayView(BackboneAPIView):
     model = Play
@@ -56,7 +59,9 @@ class PlayView(BackboneAPIView):
     def get_form_instance(self, request, data=None, instance=None):
         #here = fromstr(b64decode(request.META['HTTP_WHERE']))
         #data['location'] = here
-        return super(PlayView, self).get_form_instance(request, data, instance)
+        play_form = super(PlayView, self).get_form_instance(request, data, instance)
+        play_form.post_save = on_play_save
+        return play_form
 
     def serialize(self, obj, fields):
         play = super(PlayView, self).serialize(obj, fields)
@@ -64,32 +69,26 @@ class PlayView(BackboneAPIView):
         #play['longitude'] = obj.location.get_x()
 
         try:
-            play['place'] = obj.place.key().id()
+            play['place'] = str(obj.place.key())
         except:
             play['place'] = obj.place
         return play
 
 
-@receiver(post_save, sender=Play)
+# @receiver(post_save, sender=Play)
 def on_play_save(sender, instance=False, created=False, **kwargs):
     view = PlayView()
     data = {'play': view.serialize(instance, PlayView.display_fields)}
-    # print "sending play over the wire: %s" % data
-    #connect = pika.BlockingConnection()
-    #channel = connect.channel()
-    #channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
-    #connect.close()
+    for channel_record in ChannelRecord.all():
+        channel.send_message(channel_record.token, view.json_dumps(data))
 
 
-@receiver(post_save, sender=Place)
+# @receiver(post_save, sender=Place)
 def on_place_save(sender, instance=False, created=False, **kwargs):
     view = PlaceView()
     data = {'place': view.serialize(instance, PlaceView.display_fields)}
-    # print "sending place over the wire: %s" % data
-    #connect = pika.BlockingConnection()
-    #channel = connect.channel()
-    #channel.basic_publish(exchange='', routing_key='plase', body=view.json_dumps(data))
-    #connect.close()
+    for channel_record in ChannelRecord.all():
+        channel.send_message(channel_record.token, view.json_dumps(data))
 
 backbone.site.register(PlaceView)
 backbone.site.register(PlayView)

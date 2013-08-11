@@ -9,6 +9,8 @@ class PlayForm(djangoforms.ModelForm):
         model = Play
 
     def clean(self):
+        print "\n\n\n=============\n\n\nData: %s\n\n\n===========\n\n\n" % str(self.data)
+        
         cleaned_data = super(PlayForm, self).clean()
 
         nothing = cleaned_data.get("nothing")
@@ -31,6 +33,12 @@ class PlayForm(djangoforms.ModelForm):
 
         return cleaned_data
 
+    def save(self):
+        instance = super(PlayForm, self).save()
+        if hasattr(self, 'post_save'):
+            self.post_save(Play, instance=instance)
+        return instance
+
 
 class PlaceForm(djangoforms.ModelForm):
     listening_to = forms.ChoiceField(label='You are listening to a', choices=(
@@ -48,3 +56,9 @@ class PlaceForm(djangoforms.ModelForm):
 
     class Meta:
         model = Place
+
+    def save(self):
+        instance = super(PlaceForm, self).save()
+        if hasattr(self, 'post_save'):
+            self.post_save(Place, instance=instance)
+        return instance
