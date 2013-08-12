@@ -200,6 +200,7 @@ function Plase () {
                 this.listenTo(this.collection, 'add', this.init_autocomplete);
                 this.listenTo(this.collection, 'change', this.init_autocomplete);
                 this.listenTo(this.collection, 'delete', this.init_autocomplete);
+                // this.init_autocomplete();
 
                 // bind click methods
                 $el = this.$el;

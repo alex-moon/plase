@@ -1,8 +1,6 @@
 from django import forms
-from google.appengine.ext.db import djangoforms
+from lib import djangoforms
 from google.appengine.api import channel
-
-import logging
 
 from plays.models import Place, Play, ChannelRecord
 from plays.services import PlaseService
