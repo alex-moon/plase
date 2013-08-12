@@ -20,7 +20,7 @@
                     <h2>What's playing there?</h2>
                     <input type="hidden" name="place" id="id_place" value="{{ play_form.place.value }}" />
                     <div class="button-input" id="nothing">
-                        <input type="hidden" value="{{ play_form.nothing.value }}" />
+                        <input type="hidden" name="nothing" id="id_nothing" value="{% if play_form.nothing.value %}true{% endif %}" />
                         <input type="button" value="Nothing" id="nothing-button" />
                     </div><!-- nothing -->
                     <div id="something">

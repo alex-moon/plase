@@ -34,8 +34,8 @@ class PlayForm(ChannelSendingForm):
         title = cleaned_data.get("title")
 
         if nothing:
-            del cleaned_data["artist"]
-            del cleaned_data["title"]
+            cleaned_data["artist"] = ''
+            cleaned_data["title"] = ''
             cleaned_data["nothing"] = True  # normalise for consistency's sake
 
         else:

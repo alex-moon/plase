@@ -178,7 +178,7 @@ function Plase () {
             },
             initialize: function() {
                 this.listenTo(this.collection, 'add', this.drawList);
-                this.listenTo(this.collection, 'reset', this.drawList);
+                // this.listenTo(this.collection, 'reset', this.drawList);
             },
             drawList: function() {
                 this.$el.html('');
@@ -197,26 +197,9 @@ function Plase () {
                 'click #add-place-button': 'add_place'
             },
             initialize: function() {
-                var $place = this.$('#add-place');
-                var $play = this.$('#add-play');
-                this.listenTo(this.collection, 'reset', function(){
-                    $place.find('#id_name').autocomplete({
-                        collection: this.collection,
-                        attr: 'name',
-                        noCase: true,
-                        onselect: function(model) {
-                            $place.find('#id_id').val(model.get('id'));
-                            $place.find('#id_name').val(model.get('name')).addClass('set');
-                            $place.find('#id_listening_to').val(model.get('listening_to'));
-                            $place.find('#id_public').val(model.get('public'));
-
-                            $play.find('#id_place').val(model.get('id'));
-                            // console.log('Trying to set place id for play form: ', model.get('id'), model);
-
-                            $place.find('#add-place-button').hide();
-                        }
-                    });
-                });
+                this.listenTo(this.collection, 'add', this.init_autocomplete);
+                this.listenTo(this.collection, 'change', this.init_autocomplete);
+                this.listenTo(this.collection, 'delete', this.init_autocomplete);
 
                 // bind click methods
                 $el = this.$el;
@@ -234,6 +217,27 @@ function Plase () {
                 });
                 $('#show-report').click(function(e){
                     $el.slideToggle('fast');
+                });
+            },
+            init_autocomplete: function(){
+                var $place = this.$('#add-place');
+                var $play = this.$('#add-play');
+
+                $place.find('#id_name').autocomplete({
+                    collection: this.collection,
+                    attr: 'name',
+                    noCase: true,
+                    onselect: function(model) {
+                        $place.find('#id_id').val(model.get('id'));
+                        $place.find('#id_name').val(model.get('name')).addClass('set');
+                        $place.find('#id_listening_to').val(model.get('listening_to'));
+                        $place.find('#id_public').val(model.get('public'));
+
+                        $play.find('#id_place').val(model.get('id'));
+                        // console.log('Trying to set place id for play form: ', model.get('id'), model);
+
+                        $place.find('#add-place-button').hide();
+                    }
                 });
             },
             submit: function(e) {
@@ -309,7 +313,7 @@ function Plase () {
         ws.onerror = function(e){ console.log('WebSocket error: ', e); };
         ws.onmessage = function(e){
             var data = $.parseJSON(e.data);
-            console.log('message!', e.data);
+            // console.log('message!', e.data);
             if (_(data).has('plays')) {
                 plase.plays.add(data.plays, {'merge': true});
             } else if (_(data).has('places')) {
