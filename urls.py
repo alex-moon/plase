@@ -1,24 +1,54 @@
 from django.conf.urls import patterns, include, url
+from django.http import HttpResponse
 # from django.contrib.gis import admin
 # admin.autodiscover()
+
+from google.appengine.api import channel
+
+import logging
 
 import backbone
 backbone.autodiscover()
 
 from plays import views
-from plays.models import ChannelRecord
+from plays.models import Play, Place, ChannelRecord
+from plays.services import PlaseService
+
+
+def channel_connect(request, *args, **kwargs):
+    # @todo this could probably go in the service as well
+    # we already have a client ID/token - see plays.views.PlaseView
+    short_token = request.POST.get('from', None)
+    # logging.debug("We have channel connect from %s" % short_token)
+    try:
+        channel_record = ChannelRecord.all().filter('short_token', short_token)[0]
+    except KeyError:
+        # log error
+        return
+
+    if short_token:
+        service = PlaseService()
+        plays = Play.all()  # this should be a standard queryset on the model @todo change views to use model queryset
+        places = Place.all()  # ditto
+        channel.send_message(channel_record.token, service.json_dumps(plays))
+        # logging.debug("Socket opened - sending %s" % service.json_dumps(list(plays)))
+        channel.send_message(channel_record.token, service.json_dumps(places))
+        # logging.debug("Socket opened - sending %s" % service.json_dumps(list(places)))
+    return HttpResponse('')
 
 
 def channel_disconnect(request, *args, **kwargs):
-    channel_token = request.POST.get('from', None)
-    if channel_token:
-        ChannelRecord.get_by_id(channel_token).delete()
+    short_token = request.POST.get('from', None)
+    if short_token:
+        db.delete(ChannelRecord.all().filter('short_token', short_token))
+    return HttpResponse('')
 
 
 urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     # url(r'^admin/?', include(admin.site.urls)),
     url(r'^/?$', views.PlaseView.as_view(), name='plase'),
-    url(r'^/_ah/channel/disconnected/$', channel_disconnect),
+    url(r'connected', channel_connect),
+    url(r'disconnected', channel_disconnect),
     url(r'^api/', include(backbone.site.urls)),
 )

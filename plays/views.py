@@ -11,8 +11,10 @@ class PlaseView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super(PlaseView, self).get_context_data(*args, **kwargs)
 
-        channel_token = channel.create_channel(str(uuid4()))
+        short_token = str(uuid4())
+        channel_token = channel.create_channel(short_token)
         channel_record = ChannelRecord(token=channel_token)
+        channel_record.short_token = short_token
         channel_record.save()
 
         context['channel_token'] = channel_token

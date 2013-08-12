@@ -4,6 +4,8 @@ from google.appengine.ext import db
 # keep track of channels via db
 class ChannelRecord(db.Model):
     token = db.StringProperty()
+    short_token = db.StringProperty()
+    created = db.DateTimeProperty(auto_now_add=True)
 
 
 class Place(db.Model):

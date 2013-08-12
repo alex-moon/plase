@@ -115,7 +115,7 @@ function Plase () {
                     var place = plase.places.get(this.get('place'));
                     place.set('last_play', this);
                 } catch (e) {
-                    console.log('missing place for ', this, e);
+                    // console.log('missing place for ', this, e);
                 }
             },
             distance: function(play) {
@@ -155,7 +155,7 @@ function Plase () {
             },
             render: function(place) {
                 $last_play = _(place.get('last_play'));
-                console.log('render called for ', place, ' with last play', $last_play);
+                // console.log('render called for ', place, ' with last play', place.get('last_play'));
                 if ($last_play.isUndefined() || $last_play.isNumber() || $last_play.value().get('nothing')) {
                     this.$el.hide();
                 } else {
@@ -179,7 +179,6 @@ function Plase () {
             initialize: function() {
                 this.listenTo(this.collection, 'add', this.drawList);
                 this.listenTo(this.collection, 'reset', this.drawList);
-                this.collection.fetch();
             },
             drawList: function() {
                 this.$el.html('');
@@ -212,7 +211,7 @@ function Plase () {
                             $place.find('#id_public').val(model.get('public'));
 
                             $play.find('#id_place').val(model.get('id'));
-                            console.log('Trying to set place id for play form: ', model.get('id'), model);
+                            // console.log('Trying to set place id for play form: ', model.get('id'), model);
 
                             $place.find('#add-place-button').hide();
                         }
@@ -297,9 +296,6 @@ function Plase () {
     // ubiquitous transparent location header
     $(document).ajaxSend(function(e, xhr, options) { xhr.setRequestHeader("where", plase.locate()); });
     (function(){
-        // bootstrap plays
-        plase.plays.fetch();
-
         // get initial list
         plase.watch = new plase.views.PlacesListView();
 
@@ -314,11 +310,10 @@ function Plase () {
         ws.onmessage = function(e){
             var data = $.parseJSON(e.data);
             console.log('message!', e.data);
-            if (_(data).has('last_play')) {
-                plase.plays.add(data.play, {'merge': true});
-                plase.places.get(data.play.place).set('last_play', data.play.id);
-            } else if (_(data).has('place')) {
-                plase.places.add(data.place, {'merge': true});
+            if (_(data).has('plays')) {
+                plase.plays.add(data.plays, {'merge': true});
+            } else if (_(data).has('places')) {
+                plase.places.add(data.places, {'merge': true});
             }
         };
     })();

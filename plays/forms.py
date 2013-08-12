@@ -1,15 +1,31 @@
 from django import forms
 from google.appengine.ext.db import djangoforms
-from plays.models import Place, Play
+from google.appengine.api import channel
+
+import logging
+
+from plays.models import Place, Play, ChannelRecord
+from plays.services import PlaseService
+
 # from django.contrib.gis.forms.fields import GeometryField
 
 
-class PlayForm(djangoforms.ModelForm):
+# handle post_save with a superclass
+class ChannelSendingForm(djangoforms.ModelForm):
+    def save(self):
+        instance = super(ChannelSendingForm, self).save()
+        data = PlaseService().json_dumps(instance)
+        for channel_record in ChannelRecord.all():
+            channel.send_message(channel_record.token, data)
+        return instance
+
+
+class PlayForm(ChannelSendingForm):
     class Meta:
         model = Play
 
     def clean(self):
-        print "\n\n\n=============\n\n\nData: %s\n\n\n===========\n\n\n" % str(self.data)
+        # logging.debug("PlayForm submitted: %s" % str(self.data))
         
         cleaned_data = super(PlayForm, self).clean()
 
@@ -33,14 +49,8 @@ class PlayForm(djangoforms.ModelForm):
 
         return cleaned_data
 
-    def save(self):
-        instance = super(PlayForm, self).save()
-        if hasattr(self, 'post_save'):
-            self.post_save(Play, instance=instance)
-        return instance
 
-
-class PlaceForm(djangoforms.ModelForm):
+class PlaceForm(ChannelSendingForm):
     listening_to = forms.ChoiceField(label='You are listening to a', choices=(
         ('', '--------'),
         ('band', 'Band/Solo Musician'),
@@ -57,8 +67,3 @@ class PlaceForm(djangoforms.ModelForm):
     class Meta:
         model = Place
 
-    def save(self):
-        instance = super(PlaceForm, self).save()
-        if hasattr(self, 'post_save'):
-            self.post_save(Place, instance=instance)
-        return instance
